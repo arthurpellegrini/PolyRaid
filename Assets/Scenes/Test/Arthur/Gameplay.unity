@@ -141,16 +141,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd6043bde05a7fc4cba197d06915c1e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Damping: {x: 0.1, y: 0.5, z: 0.3}
-  ShoulderOffset: {x: 0.5, y: -0.4, z: 0}
-  VerticalArmLength: 0.4
-  CameraSide: 1
-  CameraDistance: 2
+  Damping: {x: 0, y: 0, z: 0}
+  ShoulderOffset: {x: 0, y: 0, z: 0}
+  VerticalArmLength: 0
+  CameraSide: 0.6
+  CameraDistance: 0
   CameraCollisionFilter:
     serializedVersion: 2
-    m_Bits: 0
-  IgnoreTag: 
-  CameraRadius: 0.2
+    m_Bits: 1
+  IgnoreTag: Player
+  CameraRadius: 0.15
   DampingIntoCollision: 0
   DampingFromCollision: 2
 --- !u!1 &733896414
@@ -250,6 +250,12 @@ Transform:
   m_Father: {fileID: 1297958927}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
+--- !u!4 &871844831 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3744710491089042831, guid: 683fd19195e9a5e438286a8ef956b410,
+    type: 3}
+  m_PrefabInstance: {fileID: 3744710490395825995}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1138792153
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -265,7 +271,7 @@ PrefabInstance:
     - target: {fileID: 9005220659476430818, guid: 48ac1234c4cf871408d4298a7802ac34,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.20000005
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9005220659476430818, guid: 48ac1234c4cf871408d4298a7802ac34,
         type: 3}
@@ -542,10 +548,20 @@ PrefabInstance:
       propertyPath: m_RootOrder
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9038042829508977678, guid: 683fd19195e9a5e438286a8ef956b410,
+        type: 3}
+      propertyPath: m_Follow
+      value: 
+      objectReference: {fileID: 871844831}
     - target: {fileID: 9038042829508977679, guid: 683fd19195e9a5e438286a8ef956b410,
         type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 9038042829508977679, guid: 683fd19195e9a5e438286a8ef956b410,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 9038042829953078735, guid: 683fd19195e9a5e438286a8ef956b410, type: 3}
