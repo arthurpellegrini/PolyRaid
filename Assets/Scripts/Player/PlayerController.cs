@@ -64,10 +64,8 @@ namespace Player
 
 		private PlayerInput _playerInput;
 		private CharacterController _controller;
-		private PlayerInputHandler _input;
+		private PlayerInputController _input;
 		private GameObject _mainCamera;
-
-		private const float _threshold = 0.01f;
 
 		private bool IsCurrentDeviceMouse => _playerInput.currentControlScheme == "KeyboardMouse";
 
@@ -83,10 +81,10 @@ namespace Player
 		private void Start()
 		{
 			_controller = GetComponent<CharacterController>();
-			_input = GetComponent<PlayerInputHandler>();
+			_input = GetComponent<PlayerInputController>();
 			_playerInput = GetComponent<PlayerInput>();
 
-		// reset our timeouts on start
+			// reset our timeouts on start
 			_jumpTimeoutDelta = JumpTimeout;
 			_fallTimeoutDelta = FallTimeout;
 		}
@@ -112,22 +110,19 @@ namespace Player
 
 		private void CameraRotation()
 		{
-			// if there is an input
-			if (_input.look.sqrMagnitude >= _threshold)
+			if (_input.look.sqrMagnitude >= 0.01f) // if there is an input
 			{
 				//Don't multiply mouse input by Time.deltaTime
 				float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
 			
 				_cinemachineTargetPitch += _input.look.y * RotationSpeed * deltaTimeMultiplier;
 				_rotationVelocity = _input.look.x * RotationSpeed * deltaTimeMultiplier;
-
-				// clamp our pitch rotation
-				_cinemachineTargetPitch = ClampAngle(_cinemachineTargetPitch, BottomClamp, TopClamp);
-
+				
 				// Update Cinemachine camera target pitch
+				_cinemachineTargetPitch = Mathf.Clamp(_cinemachineTargetPitch, BottomClamp, TopClamp); // clamp our pitch rotation
 				CinemachineCameraTarget.transform.localRotation = Quaternion.Euler(_cinemachineTargetPitch, 0.0f, 0.0f);
 
-				// rotate the player left and right
+				// Rotate the player left and right
 				transform.Rotate(Vector3.up * _rotationVelocity);
 			}
 		}
@@ -147,14 +142,13 @@ namespace Player
 			float currentHorizontalSpeed = new Vector3(_controller.velocity.x, 0.0f, _controller.velocity.z).magnitude;
 
 			float speedOffset = 0.1f;
-			float inputMagnitude = _input.analogMovement ? _input.move.magnitude : 1f;
 
 			// accelerate or decelerate to target speed
 			if (currentHorizontalSpeed < targetSpeed - speedOffset || currentHorizontalSpeed > targetSpeed + speedOffset)
 			{
 				// creates curved result rather than a linear one giving a more organic speed change
 				// note T in Lerp is clamped, so we don't need to clamp our speed
-				_speed = Mathf.Lerp(currentHorizontalSpeed, targetSpeed * inputMagnitude, Time.deltaTime * SpeedChangeRate);
+				_speed = Mathf.Lerp(currentHorizontalSpeed, targetSpeed, Time.deltaTime * SpeedChangeRate);
 
 				// round speed to 3 decimal places
 				_speed = Mathf.Round(_speed * 1000f) / 1000f;
@@ -227,12 +221,12 @@ namespace Player
 			}
 		}
 
-		private static float ClampAngle(float lfAngle, float lfMin, float lfMax)
-		{
-			if (lfAngle < -360f) lfAngle += 360f;
-			if (lfAngle > 360f) lfAngle -= 360f;
-			return Mathf.Clamp(lfAngle, lfMin, lfMax);
-		}
+		// private static float ClampAngle(float lfAngle, float lfMin, float lfMax)
+		// {
+		// 	if (lfAngle < -360f) lfAngle += 360f;
+		// 	if (lfAngle > 360f) lfAngle -= 360f;
+		// 	return Mathf.Clamp(lfAngle, lfMin, lfMax);
+		// }
 
 		private void OnDrawGizmosSelected()
 		{
