@@ -1,38 +1,29 @@
-﻿
+﻿using System.Collections;
 
-namespace STUDENT_NAME
+public class LevelManager : Manager<LevelManager>
 {
-	using System.Collections;
-	using System.Collections.Generic;
-	using UnityEngine;
-	using System.Linq;
-	using SDD.Events;
-
-	public class LevelManager : Manager<LevelManager>
+	#region Manager implementation
+	protected override IEnumerator InitCoroutine()
 	{
-		#region Manager implementation
-		protected override IEnumerator InitCoroutine()
-		{
-			yield break;
-		}
-		#endregion
+		yield break;
+	}
+	#endregion
 
-		public override void SubscribeEvents()
-		{
-			base.SubscribeEvents();
-		}
+	public override void SubscribeEvents()
+	{
+		base.SubscribeEvents();
+	}
 
-		public override void UnsubscribeEvents()
-		{
-			base.UnsubscribeEvents();
-		}
+	public override void UnsubscribeEvents()
+	{
+		base.UnsubscribeEvents();
+	}
 
-		protected override void GamePlay(GamePlayEvent e)
-		{
-		}
+	protected override void GamePlay(GamePlayEvent e)
+	{
+	}
 
-		protected override void GameMenu(GameMenuEvent e)
-		{
-		}
+	protected override void GameMenu(GameMenuEvent e)
+	{
 	}
 }
