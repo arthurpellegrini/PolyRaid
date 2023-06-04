@@ -1,4 +1,6 @@
 ﻿using System.Collections;
+using Cinemachine;
+using InputSystem;
 using SDD.Events;
 using UnityEngine;
 
@@ -6,12 +8,43 @@ public enum GameState { gameMenu, gameCredits, gamePlay, gameNextLevel, gamePaus
 
 public class GameManager : Manager<GameManager>
 {
+	#region GameObjects (Player & Environnement --> Scene)
+	[SerializeField] private CinemachineVirtualCamera VirtualCamera;
+	[SerializeField] private GameObject PlayerPrefab;
+	[SerializeField] private GameObject EnvironmentPrefab;
+
+	private GameObject PlayerGo;
+	private GameObject EnvironementGo;
+
+	private void InitScene()
+	{
+		EnvironementGo = Instantiate(EnvironmentPrefab, Vector3.zero, Quaternion.identity);
+		PlayerGo = Instantiate(PlayerPrefab, Vector3.zero, Quaternion.identity);
+		VirtualCamera.Follow = PlayerGo.transform;
+	}
+
+	private void DestroyScene()
+	{
+		if(PlayerGo) Destroy(PlayerGo);
+		if(EnvironementGo) Destroy(EnvironementGo);
+	}
+	
+	private void SetMenuState(bool inMenu)
+	{
+		PlayerInputController playerInput = FindObjectOfType<PlayerInputController>();
+		if (playerInput != null)
+		{
+			playerInput.inMenu = inMenu;
+			playerInput.SetCursorVisible(inMenu);
+		}
+	}
+	#endregion
+	
 	#region Game State
 	private GameState m_GameState;
 	public bool IsPlaying { get { return m_GameState == GameState.gamePlay; } }
 	#endregion
 
-	//LIVES
 	#region Lives
 	[Header("GameManager")]
 	[SerializeField]
@@ -30,8 +63,7 @@ public class GameManager : Manager<GameManager>
 		EventManager.Instance.Raise(new GameStatisticsChangedEvent() { eScore = m_Score});
 	}
 	#endregion
-
-
+	
 	#region Score
 	private float m_Score;
 	public float Score
@@ -173,23 +205,27 @@ public class GameManager : Manager<GameManager>
 	#region GameState methods
 	private void Menu()
 	{
+		DestroyScene();
+		SetMenuState(true);
 		SetTimeScale(1);
+		if(MusicLoopsManager.Instance && m_GameState != GameState.gameCredits)MusicLoopsManager.Instance.PlayMusic(Constants.MENU_MUSIC);
 		m_GameState = GameState.gameMenu;
-		if(MusicLoopsManager.Instance)MusicLoopsManager.Instance.PlayMusic(Constants.MENU_MUSIC);
 		EventManager.Instance.Raise(new GameMenuEvent());
 	}
 	
 	private void Credits()
 	{
+		SetMenuState(true);
 		SetTimeScale(1);
 		m_GameState = GameState.gameCredits;
-		if(MusicLoopsManager.Instance)MusicLoopsManager.Instance.PlayMusic(Constants.MENU_MUSIC);
 		EventManager.Instance.Raise(new GameCreditsEvent());
 	}
 
 	private void Play()
 	{
+		InitScene();
 		InitNewGame();
+		SetMenuState(false);
 		SetTimeScale(1);
 		m_GameState = GameState.gamePlay;
 
@@ -200,7 +236,7 @@ public class GameManager : Manager<GameManager>
 	private void Pause()
 	{
 		if (!IsPlaying) return;
-
+		SetMenuState(true);
 		SetTimeScale(0);
 		m_GameState = GameState.gamePause;
 		EventManager.Instance.Raise(new GamePauseEvent());
@@ -209,7 +245,7 @@ public class GameManager : Manager<GameManager>
 	private void Resume()
 	{
 		if (IsPlaying) return;
-
+		SetMenuState(false);
 		SetTimeScale(1);
 		m_GameState = GameState.gamePlay;
 		EventManager.Instance.Raise(new GameResumeEvent());
@@ -218,7 +254,7 @@ public class GameManager : Manager<GameManager>
 	private void Respawn()
 	{
 		if (IsPlaying) return;
-
+		SetMenuState(true);
 		SetTimeScale(1);
 		m_GameState = GameState.gamePlay;
 		EventManager.Instance.Raise(new GameRespawnEvent());
@@ -226,6 +262,7 @@ public class GameManager : Manager<GameManager>
 
 	private void Over()
 	{
+		SetMenuState(true);
 		SetTimeScale(0);
 		m_GameState = GameState.gameOver;
 		EventManager.Instance.Raise(new GameDeadEvent());
