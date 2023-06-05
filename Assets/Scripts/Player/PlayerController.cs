@@ -67,6 +67,7 @@ namespace Player
 
 		[SerializeField] public GameObject CharacterRig;
 		private Animator _animator;
+
 		private PlayerInput _playerInput;
 		private CharacterController _controller;
 		private PlayerInputController _input;
@@ -86,6 +87,7 @@ namespace Player
 		private void Start()
 		{
 			_animator = CharacterRig.GetComponent<Animator>();
+
 			_controller = GetComponent<CharacterController>();
 			_input = GetComponent<PlayerInputController>();
 			_playerInput = GetComponent<PlayerInput>();
