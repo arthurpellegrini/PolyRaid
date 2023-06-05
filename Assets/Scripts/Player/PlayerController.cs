@@ -61,6 +61,12 @@ namespace Player
 		private float _jumpTimeoutDelta;
 		private float _fallTimeoutDelta;
 
+		// Animator
+		private int _xVelHash;
+		private int _yVelHash;
+
+		[SerializeField] public GameObject CharacterRig;
+		private Animator _animator;
 
 		private PlayerInput _playerInput;
 		private CharacterController _controller;
@@ -80,6 +86,8 @@ namespace Player
 
 		private void Start()
 		{
+			_animator = CharacterRig.GetComponent<Animator>();
+
 			_controller = GetComponent<CharacterController>();
 			_input = GetComponent<PlayerInputController>();
 			_playerInput = GetComponent<PlayerInput>();
@@ -87,6 +95,10 @@ namespace Player
 			// reset our timeouts on start
 			_jumpTimeoutDelta = JumpTimeout;
 			_fallTimeoutDelta = FallTimeout;
+			
+			// Animator Hashes
+			_xVelHash = Animator.StringToHash("X_Velocity");
+			_yVelHash = Animator.StringToHash("Y_Velocity");
 		}
 
 		private void Update()
@@ -170,7 +182,12 @@ namespace Player
 			}
 
 			// move the player
-			_controller.Move(inputDirection.normalized * (_speed * Time.deltaTime) + new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime);
+			Vector3 motion = inputDirection.normalized * (_speed * Time.deltaTime) +
+			                 new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime;
+			_controller.Move(motion);
+			
+			_animator.SetFloat(_xVelHash,  _input.move.x * _speed);
+			_animator.SetFloat(_yVelHash,  _input.move.y * _speed);
 		}
 
 		private void JumpAndGravity()
