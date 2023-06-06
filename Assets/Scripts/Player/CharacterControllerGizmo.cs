@@ -1,32 +1,35 @@
 using UnityEngine;
 
-[RequireComponent(typeof(CharacterController))]
-public class CharacterControllerGizmo : MonoBehaviour
+namespace Player
 {
-    private CharacterController characterController;
-
-    private void Awake()
+    [RequireComponent(typeof(CharacterController))]
+    public class CharacterControllerGizmo : MonoBehaviour
     {
-        characterController = GetComponent<CharacterController>();
-    }
+        private CharacterController characterController;
 
-    private void OnDrawGizmosSelected()
-    {
-        if (characterController == null)
-            return;
+        private void Awake()
+        {
+            characterController = GetComponent<CharacterController>();
+        }
 
-        Gizmos.color = Color.yellow;
+        private void OnDrawGizmosSelected()
+        {
+            if (characterController == null)
+                return;
 
-        // Dessiner la capsule autour du Character Controller
-        Vector3 top = transform.position + Vector3.up * (characterController.height / 2f);
-        Vector3 bottom = transform.position - Vector3.up * (characterController.height / 2f);
-        float radius = characterController.radius;
+            Gizmos.color = Color.yellow;
 
-        Gizmos.DrawWireSphere(top, radius);
-        Gizmos.DrawWireSphere(bottom, radius);
-        Gizmos.DrawLine(top + transform.right * radius, bottom + transform.right * radius);
-        Gizmos.DrawLine(top - transform.right * radius, bottom - transform.right * radius);
-        Gizmos.DrawLine(top + transform.forward * radius, bottom + transform.forward * radius);
-        Gizmos.DrawLine(top - transform.forward * radius, bottom - transform.forward * radius);
+            // Dessiner la capsule autour du Character Controller
+            Vector3 top = transform.position + Vector3.up * (characterController.height / 2f);
+            Vector3 bottom = transform.position - Vector3.up * (characterController.height / 2f);
+            float radius = characterController.radius;
+
+            Gizmos.DrawWireSphere(top, radius);
+            Gizmos.DrawWireSphere(bottom, radius);
+            Gizmos.DrawLine(top + transform.right * radius, bottom + transform.right * radius);
+            Gizmos.DrawLine(top - transform.right * radius, bottom - transform.right * radius);
+            Gizmos.DrawLine(top + transform.forward * radius, bottom + transform.forward * radius);
+            Gizmos.DrawLine(top - transform.forward * radius, bottom - transform.forward * radius);
+        }
     }
 }

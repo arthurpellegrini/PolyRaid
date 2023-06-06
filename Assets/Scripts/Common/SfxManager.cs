@@ -1,13 +1,8 @@
 using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
-using System;
 using System.Xml;
-using System.Linq;
-using Random = UnityEngine.Random;
 
-[System.Serializable]
-public class MyAudioClip
+[System.Serializable] public class MyAudioClip
 {
 	public MyAudioClip(AudioClip clip,float volume)
 	{
@@ -38,9 +33,8 @@ public class SfxManager : Singleton<SfxManager> {
 
 	AudioSource AddAudioSource()
 	{
-		GameObject newGO = Instantiate(m_AudioSourceModel);
+		GameObject newGO = Instantiate(m_AudioSourceModel, transform, true);
 		newGO.name = "AudioSource";
-		newGO.transform.parent = transform;
 
 		AudioSource audioSource = newGO.GetComponent<AudioSource>();
 		m_AudioSources.Add(audioSource);
@@ -51,8 +45,7 @@ public class SfxManager : Singleton<SfxManager> {
 
 		return audioSource;
 	}
-
-	// Use this for initialization
+	
 	void Start () {
 
 		XmlDocument xmlDoc = new XmlDocument();
@@ -62,11 +55,13 @@ public class SfxManager : Singleton<SfxManager> {
 		{
 			if(node.NodeType!= XmlNodeType.Comment)
 
-			m_DicoAudioClips.Add(
-				node.Attributes["name"].Value,
-			    new MyAudioClip(
-				(AudioClip)Resources.Load(m_ResourcesFolderName+"/"+node.Attributes["name"].Value,typeof(AudioClip)),
-				float.Parse(node.Attributes["volume"].Value)));
+				if (node.Attributes != null)
+					m_DicoAudioClips.Add(
+						node.Attributes["name"].Value,
+						new MyAudioClip(
+							(AudioClip)Resources.Load(m_ResourcesFolderName + "/" + node.Attributes["name"].Value,
+								typeof(AudioClip)),
+							float.Parse(node.Attributes["volume"].Value)));
 		}
 
 		m_AudioSources.Add(m_AudioSourceModel.GetComponent<AudioSource>());

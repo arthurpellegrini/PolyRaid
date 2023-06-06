@@ -1,34 +1,12 @@
 ﻿using System.Collections;
-using Cinemachine;
 using InputSystem;
 using SDD.Events;
 using UnityEngine;
 
-public enum GameState { gameMenu, gameCredits, gamePlay, gameNextLevel, gamePause, gameOver, gameVictory }
+public enum GameState { Menu, Credits, Playing, Paused, GameOver }
 
 public class GameManager : Manager<GameManager>
 {
-	#region GameObjects (Player & Environnement --> Scene)
-	[SerializeField] private CinemachineVirtualCamera VirtualCamera;
-	[SerializeField] private GameObject PlayerPrefab;
-	[SerializeField] private GameObject EnvironmentPrefab;
-
-	private GameObject PlayerGo;
-	private GameObject EnvironementGo;
-
-	private void InitScene()
-	{
-		EnvironementGo = Instantiate(EnvironmentPrefab, Vector3.zero, Quaternion.identity);
-		PlayerGo = Instantiate(PlayerPrefab, Vector3.zero, Quaternion.identity);
-		VirtualCamera.Follow = PlayerGo.transform;
-	}
-
-	private void DestroyScene()
-	{
-		if(PlayerGo) Destroy(PlayerGo);
-		if(EnvironementGo) Destroy(EnvironementGo);
-	}
-	
 	private void SetMenuState(bool inMenu)
 	{
 		PlayerInputController playerInput = FindObjectOfType<PlayerInputController>();
@@ -38,64 +16,38 @@ public class GameManager : Manager<GameManager>
 			playerInput.SetCursorVisible(inMenu);
 		}
 	}
-	#endregion
-	
+
 	#region Game State
-	private GameState m_GameState;
-	public bool IsPlaying { get { return m_GameState == GameState.gamePlay; } }
+	private GameState _gameState;
+	public bool IsPlaying => _gameState == GameState.Playing;
 	#endregion
 
-	#region Lives
-	[Header("GameManager")]
-	[SerializeField]
-	private int m_NStartLives;
-
-	private int m_NLives;
-	public int NLives { get { return m_NLives; } }
-	void DecrementNLives(int decrement)
+	#region Events' subscription
+	public override void SubscribeEvents()
 	{
-		SetNLives(m_NLives - decrement);
+		base.SubscribeEvents();
+		EventManager.Instance.AddListener<MainMenuButtonClickedEvent>(MainMenuButtonClicked);
+		EventManager.Instance.AddListener<CreditsButtonClickedEvent>(CreditsButtonClicked);
+		EventManager.Instance.AddListener<CreateSessionButtonClickedEvent>(CreateSessionButtonClicked);
+		EventManager.Instance.AddListener<JoinSessionButtonClickedEvent>(JoinSessionButtonClicked);
+		EventManager.Instance.AddListener<ResumeButtonClickedEvent>(ResumeButtonClicked);
+		EventManager.Instance.AddListener<EscapeButtonClickedEvent>(EscapeButtonClicked);
+		EventManager.Instance.AddListener<QuitButtonClickedEvent>(QuitButtonClicked);
 	}
 
-	void SetNLives(int nLives)
+	public override void UnsubscribeEvents()
 	{
-		m_NLives = nLives;
-		EventManager.Instance.Raise(new GameStatisticsChangedEvent() { eScore = m_Score});
+		base.UnsubscribeEvents();
+		EventManager.Instance.RemoveListener<MainMenuButtonClickedEvent>(MainMenuButtonClicked);
+		EventManager.Instance.RemoveListener<CreditsButtonClickedEvent>(CreditsButtonClicked);
+		EventManager.Instance.RemoveListener<CreateSessionButtonClickedEvent>(CreateSessionButtonClicked);
+		EventManager.Instance.RemoveListener<JoinSessionButtonClickedEvent>(JoinSessionButtonClicked);
+		EventManager.Instance.RemoveListener<ResumeButtonClickedEvent>(ResumeButtonClicked);
+		EventManager.Instance.RemoveListener<EscapeButtonClickedEvent>(EscapeButtonClicked);
+		EventManager.Instance.RemoveListener<QuitButtonClickedEvent>(QuitButtonClicked);
 	}
 	#endregion
 	
-	#region Score
-	private float m_Score;
-	public float Score
-	{
-		get { return m_Score; }
-		set
-		{
-			m_Score = value;
-			BestScore = Mathf.Max(BestScore, value);
-		}
-	}
-
-	public float BestScore
-	{
-		get { return PlayerPrefs.GetFloat("BEST_SCORE", 0); }
-		set { PlayerPrefs.SetFloat("BEST_SCORE", value); }
-	}
-
-	void IncrementScore(float increment)
-	{
-		SetScore(m_Score + increment);
-	}
-
-	void SetScore(float score, bool raiseEvent = true)
-	{
-		Score = score;
-		
-		if (raiseEvent)
-			EventManager.Instance.Raise(new GameStatisticsChangedEvent() { eScore = m_Score });
-	}
-	#endregion
-
 	#region Time
 	void SetTimeScale(float newTimeScale)
 	{
@@ -103,170 +55,111 @@ public class GameManager : Manager<GameManager>
 	}
 	#endregion
 
-
-	#region Events' subscription
-	public override void SubscribeEvents()
-	{
-		base.SubscribeEvents();
-			
-		//MainMenuManager
-		EventManager.Instance.AddListener<MainMenuButtonClickedEvent>(MainMenuButtonClicked);
-		EventManager.Instance.AddListener<CreditsButtonClickedEvent>(CreditsButtonClicked);
-		EventManager.Instance.AddListener<PlayButtonClickedEvent>(PlayButtonClicked);
-		EventManager.Instance.AddListener<ResumeButtonClickedEvent>(ResumeButtonClicked);
-		EventManager.Instance.AddListener<RespawnButtonClickedEvent>(RespawnButtonClicked);
-		EventManager.Instance.AddListener<EscapeButtonClickedEvent>(EscapeButtonClicked);
-		EventManager.Instance.AddListener<QuitButtonClickedEvent>(QuitButtonClicked);
-
-		//Score Item
-		EventManager.Instance.AddListener<ScoreItemEvent>(ScoreHasBeenGained);
-	}
-
-	public override void UnsubscribeEvents()
-	{
-		base.UnsubscribeEvents();
-
-		//MainMenuManager
-		EventManager.Instance.RemoveListener<MainMenuButtonClickedEvent>(MainMenuButtonClicked);
-		EventManager.Instance.RemoveListener<CreditsButtonClickedEvent>(CreditsButtonClicked);
-		EventManager.Instance.RemoveListener<PlayButtonClickedEvent>(PlayButtonClicked);
-		EventManager.Instance.RemoveListener<ResumeButtonClickedEvent>(ResumeButtonClicked);
-		EventManager.Instance.RemoveListener<RespawnButtonClickedEvent>(RespawnButtonClicked);
-		EventManager.Instance.RemoveListener<EscapeButtonClickedEvent>(EscapeButtonClicked);
-		EventManager.Instance.RemoveListener<QuitButtonClickedEvent>(QuitButtonClicked);
-
-		//Score Item
-		EventManager.Instance.RemoveListener<ScoreItemEvent>(ScoreHasBeenGained);
-	}
-	#endregion
-
 	#region Manager implementation
 	protected override IEnumerator InitCoroutine()
 	{
-		Menu();
-		InitNewGame(); // essentiellement pour que les statistiques du jeu soient mise à jour en HUD
+		EventManager.Instance.Raise(new MainMenuButtonClickedEvent());
 		yield break;
 	}
-	#endregion
-
-	#region Game flow & Gameplay
-	//Game initialization
-	void InitNewGame(bool raiseStatsEvent = true)
+	
+	private void GameMainMenu()
 	{
-		SetScore(0);
+		if(MusicLoopsManager.Instance && _gameState != GameState.Credits) MusicLoopsManager.Instance.PlayMusic(Constants.MENU_MUSIC);
+		_gameState = GameState.Menu;
+		SetTimeScale(1);
+		SetMenuState(true);
+		EventManager.Instance.Raise(new GameMainMenuEvent());
 	}
-	#endregion
-
-	#region Callbacks to events issued by Score items
-	private void ScoreHasBeenGained(ScoreItemEvent e)
+	
+	private void GameCredits()
 	{
-		if (IsPlaying)
-			IncrementScore(e.eScore);
+		_gameState = GameState.Credits;
+		SetTimeScale(1);
+		SetMenuState(true);
+		EventManager.Instance.Raise(new GameCreditsEvent());
+	}
+
+	private void GameCreateSession()
+	{
+		_gameState = GameState.Menu;
+		SetTimeScale(1);
+		SetMenuState(true);
+		EventManager.Instance.Raise(new GameCreateSessionEvent());
+		// Start Host (Without Unity Relay)
+		// NetworkManager.Singleton.StartHost();
+	}
+
+	private void GameJoinSession()
+	{
+		if(MusicLoopsManager.Instance) MusicLoopsManager.Instance.PlayMusic(Constants.GAMEPLAY_MUSIC);
+		_gameState = GameState.Playing;
+		SetTimeScale(1);
+		SetMenuState(false);
+		EventManager.Instance.Raise(new GameJoinSessionEvent());
+		// Start Client (Without Unity Relay)
+		// NetworkManager.Singleton.StartClient();
+	}
+
+	private void GameResume()
+	{
+		_gameState = GameState.Playing;
+		SetTimeScale(1);
+		SetMenuState(false);
+		EventManager.Instance.Raise(new GameResumeEvent());
+	}
+
+	private void GamePaused()
+	{
+		_gameState = GameState.Paused;
+		SetTimeScale(0);
+		SetMenuState(true);
+		EventManager.Instance.Raise(new GamePausedEvent());
+	}
+
+	private void GameOver()
+	{
+		_gameState = GameState.GameOver;
+		SetTimeScale(0);
+		SetMenuState(false);
+		EventManager.Instance.Raise(new GameOverEvent());
 	}
 	#endregion
 
 	#region Callbacks to Events issued by MenuManager
 	private void MainMenuButtonClicked(MainMenuButtonClickedEvent e)
 	{
-		Menu();
-	}
-
-	private void PlayButtonClicked(PlayButtonClickedEvent e)
-	{
-		Play();
+		GameMainMenu();
 	}
 	
 	private void CreditsButtonClicked(CreditsButtonClickedEvent e)
 	{
-		Credits();
+		GameCredits();
 	}
 
-	private void RespawnButtonClicked(RespawnButtonClickedEvent e)
+	private void CreateSessionButtonClicked(CreateSessionButtonClickedEvent e)
 	{
-		Respawn();
+		GameCreateSession();		
+	}	
+	
+	private void JoinSessionButtonClicked(JoinSessionButtonClickedEvent e)
+	{
+		GameJoinSession();		
 	}
 	
 	private void ResumeButtonClicked(ResumeButtonClickedEvent e)
 	{
-		Resume();
+		GameResume();
 	}
-
+	
 	private void EscapeButtonClicked(EscapeButtonClickedEvent e)
 	{
-		if (IsPlaying) Pause();
+		if (IsPlaying) GamePaused();
+		else GameResume();
 	}
 
 	private void QuitButtonClicked(QuitButtonClickedEvent e)
 	{
 		Application.Quit();
-	}
-	#endregion
-
-	#region GameState methods
-	private void Menu()
-	{
-		DestroyScene();
-		SetMenuState(true);
-		SetTimeScale(1);
-		if(MusicLoopsManager.Instance && m_GameState != GameState.gameCredits)MusicLoopsManager.Instance.PlayMusic(Constants.MENU_MUSIC);
-		m_GameState = GameState.gameMenu;
-		EventManager.Instance.Raise(new GameMenuEvent());
-	}
-	
-	private void Credits()
-	{
-		SetMenuState(true);
-		SetTimeScale(1);
-		m_GameState = GameState.gameCredits;
-		EventManager.Instance.Raise(new GameCreditsEvent());
-	}
-
-	private void Play()
-	{
-		InitScene();
-		InitNewGame();
-		SetMenuState(false);
-		SetTimeScale(1);
-		m_GameState = GameState.gamePlay;
-
-		if (MusicLoopsManager.Instance) MusicLoopsManager.Instance.PlayMusic(Constants.GAMEPLAY_MUSIC);
-		EventManager.Instance.Raise(new GamePlayEvent());
-	}
-
-	private void Pause()
-	{
-		if (!IsPlaying) return;
-		SetMenuState(true);
-		SetTimeScale(0);
-		m_GameState = GameState.gamePause;
-		EventManager.Instance.Raise(new GamePauseEvent());
-	}
-
-	private void Resume()
-	{
-		if (IsPlaying) return;
-		SetMenuState(false);
-		SetTimeScale(1);
-		m_GameState = GameState.gamePlay;
-		EventManager.Instance.Raise(new GameResumeEvent());
-	}
-	
-	private void Respawn()
-	{
-		if (IsPlaying) return;
-		SetMenuState(true);
-		SetTimeScale(1);
-		m_GameState = GameState.gamePlay;
-		EventManager.Instance.Raise(new GameRespawnEvent());
-	}
-
-	private void Over()
-	{
-		SetMenuState(true);
-		SetTimeScale(0);
-		m_GameState = GameState.gameOver;
-		EventManager.Instance.Raise(new GameDeadEvent());
-		if(SfxManager.Instance) SfxManager.Instance.PlaySfx2D(Constants.GAMEOVER_SFX);
 	}
 	#endregion
 }

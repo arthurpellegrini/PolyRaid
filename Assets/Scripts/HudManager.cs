@@ -16,9 +16,44 @@ public class HudManager : Manager<HudManager>
 	#endregion
 
 	#region Callbacks to GameManager events
+	protected override void GameMainMenu(GameMainMenuEvent e)
+	{
+
+	}
+	
+	protected override void GameCredits(GameCreditsEvent e)
+	{
+
+	}
+
+	protected override void GameCreateSession(GameCreateSessionEvent e)
+	{
+
+	}
+
+	protected override void GameJoinSession(GameJoinSessionEvent e)
+	{
+
+	}
+
+	protected override void GameResume(GameResumeEvent e)
+	{
+
+	}
+
+	protected override void GamePaused(GamePausedEvent e)
+	{
+
+	}
+
+	protected override void GameOver(GameOverEvent e)
+	{
+
+	}
+	
 	protected override void GameStatisticsChanged(GameStatisticsChangedEvent e)
 	{
-		//TO DO
+		
 	}
 	#endregion
 

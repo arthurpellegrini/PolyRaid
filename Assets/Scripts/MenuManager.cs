@@ -1,150 +1,145 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using SDD.Events;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using SDD.Events;
+using UnityEngine.Serialization;
 
 public class MenuManager : Manager<MenuManager>
 {
-	[Header("MenuManager")]
+    [Header("MenuManager")]
+    [SerializeField] private GameObject mainMenuGo;
+    [SerializeField] private GameObject creditsMenuGo;
+    [SerializeField] private GameObject pausedMenuGo;
+    [SerializeField] private GameObject gameOverMenuGo;
+    [SerializeField] private GameObject hudGo;
 
-	#region Panels
-	[Header("Panels")]
-	[SerializeField] GameObject MainMenuGo;
-	[SerializeField] GameObject CreditsMenuGo;
-	[SerializeField] GameObject PausedMenuGo;
-	[SerializeField] GameObject EndgameMenuGo;
-	[SerializeField] GameObject DeadMenuGo ;
-	[SerializeField] GameObject HUDGo ;
+    private List<GameObject> allPanels;
 
-	List<GameObject> AllPanels;
-	#endregion
+    #region Manager implementation
+    protected override IEnumerator InitCoroutine()
+    {
+        yield break;
+    }
+    #endregion
 
-	#region Events' subscription
-	public override void SubscribeEvents()
-	{
-		base.SubscribeEvents();
-	}
+    #region Monobehaviour lifecycle
+    protected override void Awake()
+    {
+        base.Awake();
+        RegisterPanels();
+    }
 
-	public override void UnsubscribeEvents()
-	{
-		base.UnsubscribeEvents();
-	}
-	#endregion
+    private void Update()
+    {
+        if (Keyboard.current.escapeKey.wasPressedThisFrame)
+        {
+            EscapeButtonHasBeenClicked();
+        }
+    }
+    #endregion
 
-	#region Manager implementation
-	protected override IEnumerator InitCoroutine()
-	{
-		yield break;
-	}
-	#endregion
+    #region Panel Methods
+    private void RegisterPanels()
+    {
+        allPanels = new List<GameObject>
+        {
+            mainMenuGo,
+            creditsMenuGo,
+            pausedMenuGo,
+            gameOverMenuGo,
+            hudGo
+        };
+    }
 
-	#region Monobehaviour lifecycle
-	protected override void Awake()
-	{
-		base.Awake();
-		RegisterPanels();
-	}
+    private void OpenPanel(GameObject panel)
+    {
+        foreach (var item in allPanels)
+        {
+            if (item)
+            {
+                item.SetActive(item == panel);
+            }
+        }
+    }
+    #endregion
 
-	private void Update()
-	{
-		if (Input.GetButtonDown("Cancel"))
-		{
-			EscapeButtonHasBeenClicked();
-		}
-	}
-	#endregion
+    #region UI OnClick Events
+    public void MainMenuButtonHasBeenClicked()
+    {
+        EventManager.Instance.Raise(new MainMenuButtonClickedEvent());
+    }
+    
+    public void CreditsButtonHasBeenClicked()
+    {
+        EventManager.Instance.Raise(new CreditsButtonClickedEvent());
+    }
 
-	#region Panel Methods
-	void RegisterPanels()
-	{
-		AllPanels = new List<GameObject>();
-		AllPanels.Add(MainMenuGo);
-		AllPanels.Add(CreditsMenuGo);
-		AllPanels.Add(PausedMenuGo);
-		AllPanels.Add(EndgameMenuGo);
-		AllPanels.Add(DeadMenuGo);
-		AllPanels.Add(HUDGo);
-	}
+    public void CreateSessionButtonHasBeenClicked()
+    {
+        EventManager.Instance.Raise(new CreateSessionButtonClickedEvent());
+    }
+    
+    public void JoinSessionButtonHasBeenClicked()
+    {
+        EventManager.Instance.Raise(new JoinSessionButtonClickedEvent());
+    }
 
-	void OpenPanel(GameObject panel)
-	{
-		foreach (var item in AllPanels)
-			if (item) item.SetActive(item == panel);
-	}
-	#endregion
+    public void ResumeButtonHasBeenClicked()
+    {
+        EventManager.Instance.Raise(new ResumeButtonClickedEvent());
+    }
 
-	#region UI OnClick Events
-	public void EscapeButtonHasBeenClicked()
-	{
-		EventManager.Instance.Raise(new EscapeButtonClickedEvent());
-	}
+    public void EscapeButtonHasBeenClicked()
+    {
+        EventManager.Instance.Raise(new EscapeButtonClickedEvent());
+    }
 
-	public void PlayButtonHasBeenClicked()
-	{
-		EventManager.Instance.Raise(new PlayButtonClickedEvent());
-	}
+    public void QuitButtonHasBeenClicked()
+    {
+        EventManager.Instance.Raise(new QuitButtonClickedEvent());
+    }
+    #endregion
 
-	public void ResumeButtonHasBeenClicked()
-	{
-		EventManager.Instance.Raise(new ResumeButtonClickedEvent());
-	}		
+    #region Callbacks to GameManager events
+    protected override void GameMainMenu(GameMainMenuEvent e)
+    {
+        OpenPanel(mainMenuGo);
+    }
+    
+    protected override void GameCredits(GameCreditsEvent e)
+    {
+        OpenPanel(creditsMenuGo);
+    }
+
+    protected override void GameCreateSession(GameCreateSessionEvent e)
+    {
+        OpenPanel(mainMenuGo);
+    }
+
+    protected override void GameJoinSession(GameJoinSessionEvent e)
+    {
+        OpenPanel(hudGo);
+    }
+
+    protected override void GameResume(GameResumeEvent e)
+    {
+        OpenPanel(hudGo);
+    }
+
+    protected override void GamePaused(GamePausedEvent e)
+    {
+        OpenPanel(pausedMenuGo);
+    }
+
+    protected override void GameOver(GameOverEvent e)
+    {
+        OpenPanel(gameOverMenuGo);
+    }
+    
+    protected override void GameStatisticsChanged(GameStatisticsChangedEvent e)
+    {
 		
-	public void RespawnButtonHasBeenClicked()
-	{
-		EventManager.Instance.Raise(new RespawnButtonClickedEvent());
-	}		
-		
-	public void CreditsButtonHasBeenClicked()
-	{
-		EventManager.Instance.Raise(new CreditsButtonClickedEvent());
-	}
-
-	public void MainMenuButtonHasBeenClicked()
-	{
-		EventManager.Instance.Raise(new MainMenuButtonClickedEvent());
-	}
-
-	public void QuitButtonHasBeenClicked()
-	{
-		EventManager.Instance.Raise(new QuitButtonClickedEvent());
-	}
-
-	#endregion
-
-	#region Callbacks to GameManager events
-	protected override void GameMenu(GameMenuEvent e)
-	{
-		OpenPanel(MainMenuGo);
-	}
-		
-	protected override void GameCredits(GameCreditsEvent e)
-	{
-		OpenPanel(CreditsMenuGo);
-	}
-
-	protected override void GamePlay(GamePlayEvent e)
-	{
-		OpenPanel(HUDGo);
-	}
-
-	protected override void GamePause(GamePauseEvent e)
-	{
-		OpenPanel(PausedMenuGo);
-	}
-
-	protected override void GameResume(GameResumeEvent e)
-	{
-		OpenPanel(HUDGo);
-	}
-		
-	protected override void GameRespawn(GameRespawnEvent e)
-	{
-		OpenPanel(HUDGo);
-	}
-
-	protected override void GameDead(GameDeadEvent e)
-	{
-		OpenPanel(DeadMenuGo);
-	}
-	#endregion
+    }
+    #endregion
 }

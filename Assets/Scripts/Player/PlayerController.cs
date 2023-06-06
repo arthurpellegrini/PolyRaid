@@ -238,13 +238,6 @@ namespace Player
 			}
 		}
 
-		// private static float ClampAngle(float lfAngle, float lfMin, float lfMax)
-		// {
-		// 	if (lfAngle < -360f) lfAngle += 360f;
-		// 	if (lfAngle > 360f) lfAngle -= 360f;
-		// 	return Mathf.Clamp(lfAngle, lfMin, lfMax);
-		// }
-
 		private void OnDrawGizmosSelected()
 		{
 			Color transparentGreen = new Color(0.0f, 1.0f, 0.0f, 0.35f);
