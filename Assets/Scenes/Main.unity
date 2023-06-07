@@ -763,6 +763,23 @@ PrefabInstance:
       propertyPath: m_PanelInGameMenu
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 114186785974676832, guid: 68480a01e4a00ab45b3d746ae2fc86ee,
+        type: 3}
+      propertyPath: PlayerPrefab
+      value: 
+      objectReference: {fileID: 3744710490433315899, guid: 683fd19195e9a5e438286a8ef956b410,
+        type: 3}
+    - target: {fileID: 114186785974676832, guid: 68480a01e4a00ab45b3d746ae2fc86ee,
+        type: 3}
+      propertyPath: VirtualCamera
+      value: 
+      objectReference: {fileID: 1865926237}
+    - target: {fileID: 114186785974676832, guid: 68480a01e4a00ab45b3d746ae2fc86ee,
+        type: 3}
+      propertyPath: EnvironmentPrefab
+      value: 
+      objectReference: {fileID: 4250669961756281599, guid: 5e059a98ecd537b4eafb4c1970aa93b5,
+        type: 3}
     - target: {fileID: 114331011742233390, guid: 68480a01e4a00ab45b3d746ae2fc86ee,
         type: 3}
       propertyPath: m_ResourcesFolderName

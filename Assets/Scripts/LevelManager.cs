@@ -1,4 +1,6 @@
 ﻿using System.Collections;
+using Cinemachine;
+using UnityEngine;
 
 public class LevelManager : Manager<LevelManager>
 {
@@ -18,11 +20,32 @@ public class LevelManager : Manager<LevelManager>
 	{
 		base.UnsubscribeEvents();
 	}
+	
+	#region GameObjects (Player & Environnement --> Scene)
+	[SerializeField] private CinemachineVirtualCamera VirtualCamera;
+	[SerializeField] private GameObject PlayerPrefab;
+	[SerializeField] private GameObject EnvironmentPrefab;
 
-	// Méthodes caméra Player + Environnement
+	private GameObject PlayerGo;
+	private GameObject EnvironementGo;
+
+	private void InitScene()
+	{
+		EnvironementGo = Instantiate(EnvironmentPrefab, Vector3.zero, Quaternion.identity);
+		PlayerGo = Instantiate(PlayerPrefab, Vector3.zero, Quaternion.identity);
+		VirtualCamera.Follow = PlayerGo.transform;
+	}
+
+	private void DestroyScene()
+	{
+		if(PlayerGo) Destroy(PlayerGo);
+		if(EnvironementGo) Destroy(EnvironementGo);
+	}
+	#endregion
+	
 	protected override void GameMainMenu(GameMainMenuEvent e)
 	{
-
+		DestroyScene();
 	}
 	
 	protected override void GameCredits(GameCreditsEvent e)
@@ -37,7 +60,7 @@ public class LevelManager : Manager<LevelManager>
 
 	protected override void GameJoinSession(GameJoinSessionEvent e)
 	{
-
+		InitScene();
 	}
 
 	protected override void GameResume(GameResumeEvent e)
