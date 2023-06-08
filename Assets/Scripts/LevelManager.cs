@@ -32,13 +32,13 @@ public class LevelManager : Manager<LevelManager>
 	private void InitScene()
 	{
 		EnvironementGo = Instantiate(EnvironmentPrefab, Vector3.zero, Quaternion.identity);
-		PlayerGo = Instantiate(PlayerPrefab, Vector3.zero, Quaternion.identity);
-		VirtualCamera.Follow = PlayerGo.transform;
+		// PlayerGo = Instantiate(PlayerPrefab, Vector3.zero, Quaternion.identity);
+		// VirtualCamera.Follow = PlayerGo.transform;
 	}
 
 	private void DestroyScene()
 	{
-		if(PlayerGo) Destroy(PlayerGo);
+		// if(PlayerGo) Destroy(PlayerGo);
 		if(EnvironementGo) Destroy(EnvironementGo);
 	}
 	#endregion
@@ -55,7 +55,7 @@ public class LevelManager : Manager<LevelManager>
 
 	protected override void GameCreateSession(GameCreateSessionEvent e)
 	{
-
+		InitScene(); //TODO : REMOVE IF USE RELAY
 	}
 
 	protected override void GameJoinSession(GameJoinSessionEvent e)

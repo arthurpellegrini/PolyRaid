@@ -85,7 +85,7 @@ GameObject:
   - component: {fileID: 3744710490433315902}
   - component: {fileID: 3744710490433315903}
   - component: {fileID: 3744710490433315896}
-  - component: {fileID: 674755718772394068}
+  - component: {fileID: 6693289634884093833}
   m_Layer: 3
   m_Name: Player
   m_TagString: Player
@@ -221,27 +221,25 @@ MonoBehaviour:
   m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
---- !u!95 &674755718772394068
-Animator:
-  serializedVersion: 5
+--- !u!114 &6693289634884093833
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3744710490433315899}
-  m_Enabled: 0
-  m_Avatar: {fileID: 9000000, guid: b6733250115a09f439345c62de5d010e, type: 3}
-  m_Controller: {fileID: 9100000, guid: b769b24f4c02b354c94457c4124a0ede, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 1
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 951099334
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!1 &3744710491089042824
 GameObject:
   m_ObjectHideFlags: 0

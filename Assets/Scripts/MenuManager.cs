@@ -114,7 +114,8 @@ public class MenuManager : Manager<MenuManager>
 
     protected override void GameCreateSession(GameCreateSessionEvent e)
     {
-        OpenPanel(mainMenuGo);
+        // OpenPanel(mainMenuGo);
+        OpenPanel(hudGo);
     }
 
     protected override void GameJoinSession(GameJoinSessionEvent e)

@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using SDD.Events;
+using Unity.Netcode;
 
-public abstract class SimpleGameStateObserver : MonoBehaviour,IEventHandler {
+public abstract class SimpleGameStateObserver : NetworkBehaviour,IEventHandler {
 
 	public virtual void SubscribeEvents()
 	{

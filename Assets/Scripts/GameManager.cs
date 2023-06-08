@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using InputSystem;
 using SDD.Events;
+using Unity.Netcode;
 using UnityEngine;
 
 public enum GameState { Menu, Credits, Playing, Paused, GameOver }
@@ -84,9 +85,11 @@ public class GameManager : Manager<GameManager>
 		_gameState = GameState.Menu;
 		SetTimeScale(1);
 		SetMenuState(true);
-		EventManager.Instance.Raise(new GameCreateSessionEvent());
+		
 		// Start Host (Without Unity Relay)
-		// NetworkManager.Singleton.StartHost();
+		NetworkManager.Singleton.StartHost();
+		
+		EventManager.Instance.Raise(new GameCreateSessionEvent());
 	}
 
 	private void GameJoinSession()
@@ -95,9 +98,11 @@ public class GameManager : Manager<GameManager>
 		_gameState = GameState.Playing;
 		SetTimeScale(1);
 		SetMenuState(false);
-		EventManager.Instance.Raise(new GameJoinSessionEvent());
+		
 		// Start Client (Without Unity Relay)
-		// NetworkManager.Singleton.StartClient();
+		NetworkManager.Singleton.StartClient();
+		
+		EventManager.Instance.Raise(new GameJoinSessionEvent());
 	}
 
 	private void GameResume()
