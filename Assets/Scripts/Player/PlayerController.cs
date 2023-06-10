@@ -1,4 +1,5 @@
-﻿using InputSystem;
+﻿using Cinemachine;
+using InputSystem;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -44,6 +45,8 @@ namespace Player
 		[Header("Cinemachine")]
 		[Tooltip("The follow target set in the Cinemachine Virtual Camera that the camera will follow")]
 		public GameObject CinemachineCameraTarget;
+		[Tooltip("The follow target set in the Cinemachine Virtual Camera that the camera will follow")]
+		public CinemachineVirtualCamera CinemachineVirtualCamera;
 		[Tooltip("How far in degrees can you move the camera up")]
 		public float TopClamp = 90.0f;
 		[Tooltip("How far in degrees can you move the camera down")]
@@ -80,7 +83,8 @@ namespace Player
 		public override void OnNetworkSpawn()
 		{
 			//If this is not the owner, turn of player inputs
-			if (!IsOwner) gameObject.GetComponent<PlayerInput>().enabled = false;   
+			if (!IsOwner) gameObject.GetComponent<PlayerInput>().enabled = false;
+			CinemachineVirtualCamera.Priority = IsOwner ? 10 : 0;
 		}
 		
 		private void Awake()

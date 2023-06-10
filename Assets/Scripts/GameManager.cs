@@ -116,7 +116,7 @@ public class GameManager : Manager<GameManager>
 	private void GamePaused()
 	{
 		_gameState = GameState.Paused;
-		SetTimeScale(0);
+		SetTimeScale(1);
 		SetMenuState(true);
 		EventManager.Instance.Raise(new GamePausedEvent());
 	}

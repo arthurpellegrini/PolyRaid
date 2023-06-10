@@ -11,7 +11,6 @@ namespace InputSystem
 		public bool jump;
 		public bool sprint;
 		[Header("Mouse Cursor Settings")]
-		[SerializeField] public bool cursorLocked = true;
 		[SerializeField] public bool cursorInputForLook = true;
 		[SerializeField] public bool inMenu = true; 
 
@@ -34,15 +33,18 @@ namespace InputSystem
 				SetCursorVisible(inMenu);
 				if (inMenu)
 				{
+					cursorInputForLook = false;
 					SetCursorState(false); // Déverrouillez le curseur si vous êtes dans le menu
 				}
 				else
 				{
-					SetCursorState(cursorLocked); // Verrouillez le curseur uniquement si vous n'êtes pas dans le menu
+					cursorInputForLook = true;
+					SetCursorState(true); // Verrouillez le curseur uniquement si vous n'êtes pas dans le menu
 				}
 			}
 			else
 			{
+				cursorInputForLook = false;
 				SetCursorState(false); // Déverrouillez le curseur lorsque vous perdez le focus sur la fenêtre
 			}
 		}
