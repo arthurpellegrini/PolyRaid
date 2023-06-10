@@ -1,13 +1,58 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
+using System.Threading.Tasks;
 using InputSystem;
 using SDD.Events;
 using Unity.Netcode;
+using Unity.Netcode.Transports.UTP;
+using Unity.Services.Authentication;
+using Unity.Services.Core;
+using Unity.Services.Relay;
+using Unity.Services.Relay.Models;
 using UnityEngine;
 
 public enum GameState { Menu, Credits, Playing, Paused, GameOver }
 
 public class GameManager : Manager<GameManager>
 {
+	private UnityTransport _transport;
+
+	protected override async void Awake(){
+		base.Awake();
+		await Authenticate();
+	}
+
+	private static async Task Authenticate(){
+		await UnityServices.InitializeAsync();
+		await AuthenticationService.Instance.SignInAnonymouslyAsync();
+	}
+	
+	protected override IEnumerator Start(){
+		_transport = FindObjectOfType<UnityTransport>();
+		yield return base.Start();
+	}
+
+	public async void CreateMultiplayerRelay(){
+		Allocation a = await RelayService.Instance.CreateAllocationAsync(8);
+		MenuManager.Instance.setInputField(await RelayService.Instance.GetJoinCodeAsync(a.AllocationId));
+
+		_transport.SetRelayServerData(a.RelayServer.IpV4, (ushort) a.RelayServer.Port, a.AllocationIdBytes, a.Key, a.ConnectionData);
+
+		NetworkManager.Singleton.StartHost();
+	}
+
+	public async void JoinSession(){
+		try {
+			JoinAllocation a = await RelayService.Instance.JoinAllocationAsync(MenuManager.Instance.getInputField());
+        
+			_transport.SetClientRelayData(a.RelayServer.IpV4, (ushort) a.RelayServer.Port, a.AllocationIdBytes, a.Key, a.ConnectionData, a.HostConnectionData);
+            
+			NetworkManager.Singleton.StartClient();
+		}catch(Exception e){
+			Debug.LogError("Error when trying to join multiplayer lobby "+e.Message);
+		}
+	}
+	
 	private void SetMenuState(bool inMenu)
 	{
 		PlayerInputController playerInput = FindObjectOfType<PlayerInputController>();
@@ -87,7 +132,8 @@ public class GameManager : Manager<GameManager>
 		SetMenuState(true);
 		
 		// Start Host (Without Unity Relay)
-		NetworkManager.Singleton.StartHost();
+		// NetworkManager.Singleton.StartHost();
+		CreateMultiplayerRelay();
 		
 		EventManager.Instance.Raise(new GameCreateSessionEvent());
 	}
@@ -100,7 +146,8 @@ public class GameManager : Manager<GameManager>
 		SetMenuState(false);
 		
 		// Start Client (Without Unity Relay)
-		NetworkManager.Singleton.StartClient();
+		// NetworkManager.Singleton.StartClient();
+		JoinSession();
 		
 		EventManager.Instance.Raise(new GameJoinSessionEvent());
 	}

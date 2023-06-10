@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using SDD.Events;
+using TMPro;
+using UnityEditor;
 using UnityEngine.Serialization;
 
 public class MenuManager : Manager<MenuManager>
@@ -13,6 +15,8 @@ public class MenuManager : Manager<MenuManager>
     [SerializeField] private GameObject pausedMenuGo;
     [SerializeField] private GameObject gameOverMenuGo;
     [SerializeField] private GameObject hudGo;
+    [Header("Unity Relay")]
+    [SerializeField] private TMP_InputField _tmpInputField;
 
     private List<GameObject> allPanels;
 
@@ -61,6 +65,16 @@ public class MenuManager : Manager<MenuManager>
                 item.SetActive(item == panel);
             }
         }
+    }
+
+
+    public string getInputField()
+    {
+        return _tmpInputField.text;
+    }
+    public void setInputField(string newText)
+    {
+        _tmpInputField.text = newText;
     }
     #endregion
 
@@ -114,7 +128,6 @@ public class MenuManager : Manager<MenuManager>
 
     protected override void GameCreateSession(GameCreateSessionEvent e)
     {
-        // OpenPanel(mainMenuGo);
         OpenPanel(hudGo);
     }
 
