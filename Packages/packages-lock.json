@@ -98,7 +98,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.inputsystem": {
-      "version": "1.5.1",
+      "version": "1.6.1",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -144,7 +144,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.nuget.newtonsoft-json": {
-      "version": "3.2.0",
+      "version": "3.2.1",
       "depth": 1,
       "source": "registry",
       "dependencies": {},
@@ -172,7 +172,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.render-pipelines.core": {
-      "version": "12.1.11",
+      "version": "12.1.12",
       "depth": 1,
       "source": "builtin",
       "dependencies": {
@@ -182,14 +182,14 @@
       }
     },
     "com.unity.render-pipelines.universal": {
-      "version": "12.1.11",
+      "version": "12.1.12",
       "depth": 0,
       "source": "builtin",
       "dependencies": {
         "com.unity.mathematics": "1.2.1",
         "com.unity.burst": "1.8.4",
-        "com.unity.render-pipelines.core": "12.1.11",
-        "com.unity.shadergraph": "12.1.11"
+        "com.unity.render-pipelines.core": "12.1.12",
+        "com.unity.shadergraph": "12.1.12"
       }
     },
     "com.unity.searcher": {
@@ -200,24 +200,24 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.services.authentication": {
-      "version": "2.4.0",
+      "version": "2.5.0",
       "depth": 1,
       "source": "registry",
       "dependencies": {
-        "com.unity.nuget.newtonsoft-json": "3.0.2",
-        "com.unity.services.core": "1.7.0",
+        "com.unity.nuget.newtonsoft-json": "3.2.1",
+        "com.unity.services.core": "1.9.0",
         "com.unity.modules.unitywebrequest": "1.0.0",
         "com.unity.ugui": "1.0.0"
       },
       "url": "https://packages.unity.com"
     },
     "com.unity.services.core": {
-      "version": "1.8.2",
+      "version": "1.9.0",
       "depth": 1,
       "source": "registry",
       "dependencies": {
         "com.unity.modules.unitywebrequest": "1.0.0",
-        "com.unity.nuget.newtonsoft-json": "3.0.2",
+        "com.unity.nuget.newtonsoft-json": "3.2.1",
         "com.unity.modules.androidjni": "1.0.0"
       },
       "url": "https://packages.unity.com"
@@ -270,11 +270,11 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.shadergraph": {
-      "version": "12.1.11",
+      "version": "12.1.12",
       "depth": 1,
       "source": "builtin",
       "dependencies": {
-        "com.unity.render-pipelines.core": "12.1.11",
+        "com.unity.render-pipelines.core": "12.1.12",
         "com.unity.searcher": "4.9.1"
       }
     },
