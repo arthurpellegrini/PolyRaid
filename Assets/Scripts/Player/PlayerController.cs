@@ -69,13 +69,20 @@ namespace Player
 		[SerializeField] public GameObject CharacterRig;
 		private Animator _animator;
 
-		private PlayerInput _playerInput;
+		// private PlayerInput _playerInput;
 		private CharacterController _controller;
 		private PlayerInputController _input;
 		private GameObject _mainCamera;
 
-		private bool IsCurrentDeviceMouse => _playerInput.currentControlScheme == "KeyboardMouse";
+		// private bool IsCurrentDeviceMouse => _playerInput.currentControlScheme == "KeyboardMouse";
+		// private bool IsCurrentDeviceMouse => _input.currentControlScheme == "KeyboardMouse";
 
+		public override void OnNetworkSpawn()
+		{
+			//If this is not the owner, turn of player inputs
+			if (!IsOwner) gameObject.GetComponent<PlayerInput>().enabled = false;   
+		}
+		
 		private void Awake()
 		{
 			// get a reference to our main camera
@@ -88,10 +95,9 @@ namespace Player
 		private void Start()
 		{
 			_animator = CharacterRig.GetComponent<Animator>();
-
 			_controller = GetComponent<CharacterController>();
 			_input = GetComponent<PlayerInputController>();
-			_playerInput = GetComponent<PlayerInput>();
+			// _playerInput = GetComponent<PlayerInput>();
 
 			// reset our timeouts on start
 			_jumpTimeoutDelta = JumpTimeout;
@@ -104,6 +110,7 @@ namespace Player
 
 		private void Update()
 		{
+			if (!IsOwner) return; //If this is not the owner, skip Update()
 			JumpAndGravity();
 			GroundedCheck();
 			Move();
@@ -111,6 +118,7 @@ namespace Player
 
 		private void LateUpdate()
 		{
+			if (!IsOwner) return; //If this is not the owner, skip LateUpdate()
 			CameraRotation();
 		}
 
@@ -126,7 +134,8 @@ namespace Player
 			if (_input.look.sqrMagnitude >= 0.01f) // if there is an input
 			{
 				//Don't multiply mouse input by Time.deltaTime
-				float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
+				// float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
+				float deltaTimeMultiplier = 1.0f;
 			
 				_cinemachineTargetPitch += _input.look.y * RotationSpeed * deltaTimeMultiplier;
 				_rotationVelocity = _input.look.x * RotationSpeed * deltaTimeMultiplier;

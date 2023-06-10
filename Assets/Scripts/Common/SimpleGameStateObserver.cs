@@ -1,8 +1,7 @@
 ﻿using UnityEngine;
 using SDD.Events;
-using Unity.Netcode;
 
-public abstract class SimpleGameStateObserver : NetworkBehaviour,IEventHandler {
+public abstract class SimpleGameStateObserver : MonoBehaviour,IEventHandler {
 
 	public virtual void SubscribeEvents()
 	{
@@ -33,7 +32,7 @@ public abstract class SimpleGameStateObserver : NetworkBehaviour,IEventHandler {
 		SubscribeEvents();
 	}
 
-	protected virtual void OnDestroy()
+	public void OnDestroy()
 	{
 		UnsubscribeEvents();
 	}

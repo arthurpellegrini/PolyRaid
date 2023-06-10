@@ -14,7 +14,7 @@ public class GameManager : Manager<GameManager>
 		if (playerInput != null)
 		{
 			playerInput.inMenu = inMenu;
-			playerInput.SetCursorVisible(inMenu);
+			playerInput.cursorInputForLook = !inMenu;
 		}
 	}
 
