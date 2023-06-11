@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using SDD.Events;
+﻿using UnityEngine;
 
 #region GameManager Events
 public class GameMainMenuEvent : SDD.Events.Event
@@ -28,13 +25,34 @@ public class GameOverEvent : SDD.Events.Event
 
 public class GameStatisticsChangedEvent : SDD.Events.Event
 {
-	public float eKill { get; set; }
-	public float eScore { get; set; }
-	public float eMag { get; set; }
-	public float eMunition { get; set; }
-	public float eGrenade { get; set; }
+	// public int eKill { get; set; }
+	// public int eDead { get; set; }
+	public int eScore { get; set; }
+	public float eTimer { get; set; }
+	public int eHealth { get; set; }
+}
+public class SessionStatisticsChangedEvent : SDD.Events.Event
+{
+	public string eSessionID { get; set; }
+	public int eFps { get; set; }
+	public int ePing { get; set; }
+}
+
+public enum Weapon
+{
+	M4 = 0, 
+	M19 = 1, 
+	MP5 = 2, 
+	FR_F2 = 3
+}
+
+public class PlayerStatisticsChangedEvent : SDD.Events.Event
+{
 	public bool eIsCrouching { get; set; }
-	public int eLife { get; set; }
+	public Weapon eWeaponID { get; set; }
+	public int eMag { get; set; }
+	public int eMunition { get; set; }
+	public int eGrenade { get; set; }
 }
 #endregion
 
@@ -62,9 +80,10 @@ public class QuitButtonClickedEvent : SDD.Events.Event
 }
 #endregion
 
-#region Score Event
-public class ScoreItemEvent : SDD.Events.Event
+
+#region GameEvent
+public class EnemyHasBeenHitEvent : SDD.Events.Event
 {
-	public float eScore;
+	public GameObject eEnemyGO;
 }
 #endregion

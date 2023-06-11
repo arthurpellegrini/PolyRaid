@@ -1,12 +1,84 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using SDD.Events;
+using TMPro;
+using UnityEngine;
+using UnityEngine.Serialization;
+using UnityEngine.UI;
+
 
 public class HudManager : Manager<HudManager>
 {
 
-	//[Header("HudManager")]
+	[Header("HudManager")]
 	#region Labels & Values
-	// TO DO
+	[Header("Game")]
+	[SerializeField] private TMP_Text _timer;
+	private int minutes;
+	private int seconds;
+	[SerializeField] private TMP_Text _score;
+	[SerializeField] private TMP_Text _health;
+	[FormerlySerializedAs("_sessionCode")]
+	[Space(10)]
+	[Header("Session")]
+	[SerializeField] private TMP_Text _sessionID;
+	[SerializeField] private TMP_Text _fps;
+	[SerializeField] private TMP_Text _ping;
+	[Space(10)]
+	[Header("Player")]
+	[SerializeField] private TMP_Text _mag;
+	[SerializeField] private TMP_Text _munition;
+	[SerializeField] private TMP_Text _grenade;
+	[SerializeField] private GameObject _weaponGO;
+	private Image _weapon;
+	[SerializeField] private GameObject _crouching;
+
+	[SerializeField] private List<Sprite> _weaponSpriteList;
+
 	#endregion
+	
+	public override void SubscribeEvents()
+	{
+		base.SubscribeEvents();
+		EventManager.Instance.AddListener<GameStatisticsChangedEvent>(GameStatisticsChanged);
+		EventManager.Instance.AddListener<SessionStatisticsChangedEvent>(SessionStatisticsChanged);
+		EventManager.Instance.AddListener<PlayerStatisticsChangedEvent>(PlayerStatisticsChanged);
+	}
+
+	public override void UnsubscribeEvents()
+	{
+		base.UnsubscribeEvents();
+		EventManager.Instance.RemoveListener<GameStatisticsChangedEvent>(GameStatisticsChanged);
+		EventManager.Instance.RemoveListener<SessionStatisticsChangedEvent>(SessionStatisticsChanged);
+		EventManager.Instance.RemoveListener<PlayerStatisticsChangedEvent>(PlayerStatisticsChanged);
+	}
+
+	void RefreshGameUI(float timer, int score, int health)
+	{
+		minutes = (int) timer / 60000 ;
+		seconds = (int) timer / 1000 - 60 * minutes;
+		_timer.text = timer.ToString(string.Format("{0:00}:{1:00}", minutes, seconds));
+		_score.text = score.ToString();
+		_health.text = health.ToString();
+	}
+
+	void RefreshSessionUI(string sessionID, int fps, int ping)
+	{
+		_sessionID.text = "#" + sessionID;
+		_fps.text = fps.ToString();
+		_ping.text = ping.ToString();
+	}
+
+	void RefreshPlayerUI(bool isCrouched, Weapon weaponID, int mag, int munition, int grenade)
+	{
+		_crouching.SetActive(isCrouched);
+		_weapon.sprite = _weaponSpriteList[(int) weaponID];
+		_mag.text = mag.ToString();
+		_munition.text = munition.ToString();
+		_grenade.text = grenade.ToString();
+	}
+	
 
 	#region Manager implementation
 	protected override IEnumerator InitCoroutine()
@@ -16,44 +88,20 @@ public class HudManager : Manager<HudManager>
 	#endregion
 
 	#region Callbacks to GameManager events
-	protected override void GameMainMenu(GameMainMenuEvent e)
-	{
 
-	}
-	
-	protected override void GameCredits(GameCreditsEvent e)
-	{
-
-	}
-
-	protected override void GameCreateSession(GameCreateSessionEvent e)
-	{
-
-	}
-
-	protected override void GameJoinSession(GameJoinSessionEvent e)
-	{
-
-	}
-
-	protected override void GameResume(GameResumeEvent e)
-	{
-
-	}
-
-	protected override void GamePaused(GamePausedEvent e)
-	{
-
-	}
-
-	protected override void GameOver(GameOverEvent e)
-	{
-
-	}
-	
 	protected override void GameStatisticsChanged(GameStatisticsChangedEvent e)
 	{
-		
+		RefreshGameUI(e.eTimer, e.eScore, e.eHealth);
+	}	
+	
+	protected override void SessionStatisticsChanged(SessionStatisticsChangedEvent e)
+	{
+		RefreshSessionUI(e.eSessionID, e.eFps, e.ePing);
+	}	
+	
+	protected override void PlayerStatisticsChanged(PlayerStatisticsChangedEvent e)
+	{
+		RefreshPlayerUI(e.eIsCrouching, e.eWeaponID, e.eMag, e.eMunition, e.eGrenade);
 	}
 	#endregion
 

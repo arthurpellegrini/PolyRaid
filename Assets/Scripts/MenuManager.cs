@@ -4,8 +4,6 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using SDD.Events;
 using TMPro;
-using UnityEditor;
-using UnityEngine.Serialization;
 
 public class MenuManager : Manager<MenuManager>
 {
@@ -66,8 +64,7 @@ public class MenuManager : Manager<MenuManager>
             }
         }
     }
-
-
+    
     public string getInputField()
     {
         return _tmpInputField.text;
@@ -149,11 +146,6 @@ public class MenuManager : Manager<MenuManager>
     protected override void GameOver(GameOverEvent e)
     {
         OpenPanel(gameOverMenuGo);
-    }
-    
-    protected override void GameStatisticsChanged(GameStatisticsChangedEvent e)
-    {
-		
     }
     #endregion
 }

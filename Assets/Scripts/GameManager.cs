@@ -22,71 +22,67 @@ public enum GameState
 
 public class GameManager : Manager<GameManager>
 {
-    private UnityTransport _transport;
+    private GameState _gameState;
+    public bool IsPlaying => _gameState == GameState.Playing;
 
+    private UnityTransport _transport;
+    private PlayerInputController _playerInput;
+    
+    [SerializeField] private float _GameOverDuration = 60;
+    private float _timer;
+    private int _score;
+    private int _health;
+    
+    private string _sessionID;
+    private int _lastFrameIndex;
+    private float[] _frameDeltaTimeArray = new float[30];
+    private int _fps;
+    private int _ping;
+
+    #region Manager implementation
+    void SetTimeScale(float newTimeScale)
+    {
+        Time.timeScale = newTimeScale;
+    }
+    
+    private void SetMenuState(bool inMenu)
+    {
+        if (_playerInput != null)
+        {
+            _playerInput.inMenu = inMenu;
+            _playerInput.cursorInputForLook = !inMenu;
+        }
+    }
+    
+    protected override IEnumerator InitCoroutine()
+    {
+        EventManager.Instance.Raise(new MainMenuButtonClickedEvent());
+        yield break;
+    }
+    
     protected override async void Awake()
     {
         base.Awake();
         await Authenticate();
     }
-
-    private static async Task Authenticate()
-    {
-        await UnityServices.InitializeAsync();
-        await AuthenticationService.Instance.SignInAnonymouslyAsync();
-    }
-
+    
     protected override IEnumerator Start()
     {
-        _transport = FindObjectOfType<UnityTransport>();
         yield return base.Start();
+        _transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+        _playerInput = FindObjectOfType<PlayerInputController>();
     }
 
-    public async void CreateMultiplayerRelay()
+    protected void Update()
     {
-        Allocation a = await RelayService.Instance.CreateAllocationAsync(8);
-        MenuManager.Instance.setInputField(await RelayService.Instance.GetJoinCodeAsync(a.AllocationId));
-        Debug.Log(MenuManager.Instance.getInputField());
-        _transport.SetRelayServerData(a.RelayServer.IpV4, (ushort)a.RelayServer.Port, a.AllocationIdBytes, a.Key,
-            a.ConnectionData);
-
-        NetworkManager.Singleton.StartHost();
-    }
-
-    public async void JoinSession()
-    {
-        try
+        SetSessionInfo();
+        if (IsPlaying)
         {
-            JoinAllocation a = await RelayService.Instance.JoinAllocationAsync(MenuManager.Instance.getInputField());
-
-            _transport.SetClientRelayData(a.RelayServer.IpV4, (ushort)a.RelayServer.Port, a.AllocationIdBytes, a.Key,
-                a.ConnectionData, a.HostConnectionData);
-
-            NetworkManager.Singleton.StartClient();
-        }
-        catch (Exception e)
-        {
-            Debug.LogError("Error when trying to join the session " + e.Message);
+            SetTimer(_timer - Time.deltaTime);
         }
     }
-
-    private void SetMenuState(bool inMenu)
-    {
-        PlayerInputController playerInput = FindObjectOfType<PlayerInputController>();
-        if (playerInput != null)
-        {
-            playerInput.inMenu = inMenu;
-            playerInput.cursorInputForLook = !inMenu;
-        }
-    }
-
-    #region Game State
-
-    private GameState _gameState;
-    public bool IsPlaying => _gameState == GameState.Playing;
-
     #endregion
-
+    
     #region Events' subscription
 
     public override void SubscribeEvents()
@@ -114,24 +110,72 @@ public class GameManager : Manager<GameManager>
     }
 
     #endregion
-
-    #region Time
-
-    void SetTimeScale(float newTimeScale)
+    
+    #region Unity Netcode + Relay/Lobby
+    private static async Task Authenticate()
     {
-        Time.timeScale = newTimeScale;
+        await UnityServices.InitializeAsync();
+        await AuthenticationService.Instance.SignInAnonymouslyAsync();
     }
 
+    public async void CreateMultiplayerRelay()
+    {
+        Allocation a = await RelayService.Instance.CreateAllocationAsync(8);
+        _sessionID = await RelayService.Instance.GetJoinCodeAsync(a.AllocationId);
+        MenuManager.Instance.setInputField(_sessionID);
+        _transport.SetRelayServerData(a.RelayServer.IpV4, (ushort)a.RelayServer.Port, a.AllocationIdBytes, a.Key,
+            a.ConnectionData);
+
+        NetworkManager.Singleton.StartHost();
+    }
+
+    public async void JoinSession()
+    {
+        try
+        {
+            _sessionID = MenuManager.Instance.getInputField();
+            JoinAllocation a = await RelayService.Instance.JoinAllocationAsync(_sessionID);
+
+            _transport.SetClientRelayData(a.RelayServer.IpV4, (ushort)a.RelayServer.Port, a.AllocationIdBytes, a.Key,
+                a.ConnectionData, a.HostConnectionData);
+
+            NetworkManager.Singleton.StartClient();
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("Error when trying to join the session " + e.Message);
+        }
+    }
+    #endregion
+    
+    #region GameStatistics
+    int SetFrameRate()
+    {
+        _frameDeltaTimeArray[_lastFrameIndex] = Time.deltaTime;
+        _lastFrameIndex = (_lastFrameIndex + 1) % _frameDeltaTimeArray.Length;
+        float total = 0f;
+        foreach (float deltaTime in _frameDeltaTimeArray) total += deltaTime;
+        return (int)(_frameDeltaTimeArray.Length / total);
+    }
+    
+    void SetSessionInfo()
+    {
+        // _fps = (int)(1f / Time.unscaledDeltaTime);
+        _fps = SetFrameRate();
+        _ping = _transport ? _transport.DebugSimulator.PacketDelayMS : -1;
+        EventManager.Instance.Raise(new SessionStatisticsChangedEvent() { eSessionID = _sessionID, eFps = _fps, ePing = _ping});
+    }
+
+    void SetTimer(float newTimer)
+    {
+        _timer = Mathf.Max(newTimer, 0);
+        EventManager.Instance.Raise(new GameStatisticsChangedEvent() { eTimer = newTimer });
+
+        if (_timer == 0) GameOver();
+    }
     #endregion
 
-    #region Manager implementation
-
-    protected override IEnumerator InitCoroutine()
-    {
-        EventManager.Instance.Raise(new MainMenuButtonClickedEvent());
-        yield break;
-    }
-
+    #region GameManager Functions
     private void GameMainMenu()
     {
         if (MusicLoopsManager.Instance && _gameState != GameState.Credits)
@@ -152,12 +196,13 @@ public class GameManager : Manager<GameManager>
 
     private void GameCreateSession()
     {
-        _gameState = GameState.Menu;
+        // _gameState = GameState.Menu; // TODO : Test Timer HUD
+        _gameState = GameState.Playing;
         SetTimeScale(1);
         SetMenuState(true);
-
-        // Start Host (Without Unity Relay)
-        // NetworkManager.Singleton.StartHost();
+        
+        SetTimer(_GameOverDuration); // TODO : Test Timer HUD
+        
         CreateMultiplayerRelay();
 
         EventManager.Instance.Raise(new GameCreateSessionEvent());
@@ -169,9 +214,7 @@ public class GameManager : Manager<GameManager>
         _gameState = GameState.Playing;
         SetTimeScale(1);
         SetMenuState(false);
-
-        // Start Client (Without Unity Relay)
-        // NetworkManager.Singleton.StartClient();
+        
         JoinSession();
 
         EventManager.Instance.Raise(new GameJoinSessionEvent());
@@ -200,7 +243,6 @@ public class GameManager : Manager<GameManager>
         SetMenuState(false);
         EventManager.Instance.Raise(new GameOverEvent());
     }
-
     #endregion
 
     #region Callbacks to Events issued by MenuManager
@@ -242,4 +284,12 @@ public class GameManager : Manager<GameManager>
     }
 
     #endregion
+    void EnemyHasBeenHit(EnemyHasBeenHitEvent e)
+    {
+        // IScore score = e.eEnemyGO.GetComponent<IScore>();
+        // if (score != null)
+        // {
+        //     SetScore(m_Score + score.Score);
+        // }
+    }
 }
