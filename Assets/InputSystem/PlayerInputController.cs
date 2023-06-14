@@ -12,7 +12,6 @@ namespace InputSystem
 		public bool sprint;
 		[Header("Mouse Cursor Settings")]
 		[SerializeField] public bool cursorInputForLook = true;
-		[SerializeField] public bool inMenu = true; 
 
 		public void OnMove(InputValue value) { MoveInput(value.Get<Vector2>()); }
 		public void MoveInput(Vector2 newMoveDirection) { move = newMoveDirection; } 
@@ -28,24 +27,17 @@ namespace InputSystem
 
 		private void OnApplicationFocus(bool hasFocus)
 		{
-			if (hasFocus)
+			if (hasFocus && GameManager.Instance.IsPlaying)
 			{
-				SetCursorVisible(inMenu);
-				if (inMenu)
-				{
-					cursorInputForLook = false;
-					SetCursorState(false); // Déverrouillez le curseur si vous êtes dans le menu
-				}
-				else
-				{
-					cursorInputForLook = true;
-					SetCursorState(true); // Verrouillez le curseur uniquement si vous n'êtes pas dans le menu
-				}
+				cursorInputForLook = true;
+				SetCursorState(true); // Verrouillez le curseur uniquement si vous n'êtes pas dans le menu
+				SetCursorVisible(false);
 			}
 			else
 			{
 				cursorInputForLook = false;
-				SetCursorState(false); // Déverrouillez le curseur lorsque vous perdez le focus sur la fenêtre
+				SetCursorState(false); // Déverrouillez le curseur si vous êtes dans le menu
+				SetCursorVisible(true);
 			}
 		}
 

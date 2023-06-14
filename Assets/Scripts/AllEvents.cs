@@ -1,27 +1,13 @@
 ﻿using UnityEngine;
 
 #region GameManager Events
-public class GameMainMenuEvent : SDD.Events.Event
-{
-}
-public class GameCreditsEvent : SDD.Events.Event
-{
-}
-public class GameCreateSessionEvent : SDD.Events.Event
-{
-}
-public class GameJoinSessionEvent : SDD.Events.Event
-{
-}
-public class GameResumeEvent : SDD.Events.Event
-{
-}
-public class GamePausedEvent : SDD.Events.Event
-{
-}
-public class GameOverEvent : SDD.Events.Event
-{
-}
+public class GameMainMenuEvent : SDD.Events.Event { }
+public class GameCreditsEvent : SDD.Events.Event { }
+public class GameCreateSessionEvent : SDD.Events.Event { }
+public class GameJoinSessionEvent : SDD.Events.Event { }
+public class GameResumeEvent : SDD.Events.Event { }
+public class GamePausedEvent : SDD.Events.Event { }
+public class GameOverEvent : SDD.Events.Event { }
 
 public class GameStatisticsChangedEvent : SDD.Events.Event
 {
@@ -30,21 +16,11 @@ public class GameStatisticsChangedEvent : SDD.Events.Event
 	public int eScore { get; set; }
 	public float eTimer { get; set; }
 	public int eHealth { get; set; }
-}
-public class SessionStatisticsChangedEvent : SDD.Events.Event
-{
-	public string eSessionID { get; set; }
 	public int eFps { get; set; }
 	public int ePing { get; set; }
 }
 
-public enum Weapon
-{
-	M4 = 0, 
-	M19 = 1, 
-	MP5 = 2, 
-	FR_F2 = 3
-}
+public enum Weapon { M4 = 0, M19 = 1, MP5 = 2, FR_F2 = 3 }
 
 public class PlayerStatisticsChangedEvent : SDD.Events.Event
 {
@@ -57,27 +33,17 @@ public class PlayerStatisticsChangedEvent : SDD.Events.Event
 #endregion
 
 #region MenuManager Events
-public class MainMenuButtonClickedEvent : SDD.Events.Event
-{
-}
-public class CreditsButtonClickedEvent : SDD.Events.Event
-{
-}
-public class CreateSessionButtonClickedEvent : SDD.Events.Event
-{
-}
-public class JoinSessionButtonClickedEvent : SDD.Events.Event
-{
-}
-public class ResumeButtonClickedEvent : SDD.Events.Event
-{
-}
-public class EscapeButtonClickedEvent : SDD.Events.Event
-{
-}
-public class QuitButtonClickedEvent : SDD.Events.Event
-{
-}
+public class MainMenuButtonClickedEvent : SDD.Events.Event { }
+public class PlayButtonClickedEvent : SDD.Events.Event { }
+public class ChangeNameLobbyButtonClickedEvent : SDD.Events.Event { }
+public class ReadyLobbyButtonClickedEvent : SDD.Events.Event { }
+public class RefreshLobbiesListButtonClickedEvent : SDD.Events.Event { }
+public class AddLobbyButtonClickedEvent : SDD.Events.Event { }
+public class CreateLobbyButtonClickedEvent : SDD.Events.Event { }
+public class CreditsButtonClickedEvent : SDD.Events.Event { }
+public class ResumeButtonClickedEvent : SDD.Events.Event { }
+public class EscapeButtonClickedEvent : SDD.Events.Event { }
+public class QuitButtonClickedEvent : SDD.Events.Event { }
 #endregion
 
 

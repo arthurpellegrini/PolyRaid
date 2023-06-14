@@ -3,21 +3,28 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using SDD.Events;
-using TMPro;
 
 public class MenuManager : Manager<MenuManager>
 {
-    [Header("MenuManager")]
+    #region Initialize Fields
+    [Header("Menus")]
     [SerializeField] private GameObject mainMenuGo;
     [SerializeField] private GameObject creditsMenuGo;
+    [SerializeField] private GameObject lobbyMenuGo;
     [SerializeField] private GameObject pausedMenuGo;
     [SerializeField] private GameObject gameOverMenuGo;
     [SerializeField] private GameObject hudGo;
-    [Header("Unity Relay")]
-    [SerializeField] private TMP_InputField _tmpInputField;
+    
+    [Header("Lobby")]
+    [SerializeField] private GameObject panelPlayerName;
+    [SerializeField] private GameObject panelListLobby;
+    [SerializeField] private GameObject panelLobby;
+    [SerializeField] private GameObject panelCreateLobby;
 
-    private List<GameObject> allPanels;
-
+    private List<GameObject> allMenus;
+    private List<GameObject> allLobbyPanels;
+    #endregion
+    
     #region Manager implementation
     protected override IEnumerator InitCoroutine()
     {
@@ -29,7 +36,8 @@ public class MenuManager : Manager<MenuManager>
     protected override void Awake()
     {
         base.Awake();
-        RegisterPanels();
+        RegisterMenus();
+        RegisterLobbyPanels();
     }
 
     private void Update()
@@ -41,37 +49,51 @@ public class MenuManager : Manager<MenuManager>
     }
     #endregion
 
-    #region Panel Methods
-    private void RegisterPanels()
+    #region Menus Methods
+    private void RegisterMenus()
     {
-        allPanels = new List<GameObject>
+        allMenus = new List<GameObject>
         {
             mainMenuGo,
             creditsMenuGo,
+            lobbyMenuGo,
             pausedMenuGo,
             gameOverMenuGo,
             hudGo
         };
     }
-
-    private void OpenPanel(GameObject panel)
+    private void OpenMenu(GameObject menu)
     {
-        foreach (var item in allPanels)
+        foreach (var item in allMenus)
+        {
+            if (item)
+            {
+                item.SetActive(item == menu);
+            }
+        }
+    }
+    #endregion
+
+    #region Lobby Panels Methods
+    private void RegisterLobbyPanels()
+    {
+        allLobbyPanels = new List<GameObject>
+        {
+            panelPlayerName,
+            panelListLobby,
+            panelLobby,
+            panelCreateLobby
+        };
+    }
+    private void OpenLobbyPanel(GameObject panel)
+    {
+        foreach (var item in allLobbyPanels)
         {
             if (item)
             {
                 item.SetActive(item == panel);
             }
         }
-    }
-    
-    public string getInputField()
-    {
-        return _tmpInputField.text;
-    }
-    public void setInputField(string newText)
-    {
-        _tmpInputField.text = newText;
     }
     #endregion
 
@@ -86,16 +108,36 @@ public class MenuManager : Manager<MenuManager>
         EventManager.Instance.Raise(new CreditsButtonClickedEvent());
     }
 
-    public void CreateSessionButtonHasBeenClicked()
+    public void PlayButtonHasBeenClicked()
     {
-        EventManager.Instance.Raise(new CreateSessionButtonClickedEvent());
+        EventManager.Instance.Raise(new PlayButtonClickedEvent());
     }
     
-    public void JoinSessionButtonHasBeenClicked()
+    public void ChangeNameLobbyButtonHasBeenClicked()
     {
-        EventManager.Instance.Raise(new JoinSessionButtonClickedEvent());
+        EventManager.Instance.Raise(new ChangeNameLobbyButtonClickedEvent());
     }
-
+    
+    public void ReadyLobbyButtonHasBeenClicked()
+    {
+        EventManager.Instance.Raise(new ReadyLobbyButtonClickedEvent());
+    }
+    
+    public void RefreshLobbiesListButtonHasBeenClicked()
+    {
+        EventManager.Instance.Raise(new RefreshLobbiesListButtonClickedEvent());
+    }    
+    
+    public void AddLobbyButtonHasBeenClicked()
+    {
+        EventManager.Instance.Raise(new AddLobbyButtonClickedEvent());
+    }    
+    
+    public void CreateLobbyButtonHasBeenClicked()
+    {
+        EventManager.Instance.Raise(new CreateLobbyButtonClickedEvent());
+    }
+    
     public void ResumeButtonHasBeenClicked()
     {
         EventManager.Instance.Raise(new ResumeButtonClickedEvent());
@@ -113,39 +155,11 @@ public class MenuManager : Manager<MenuManager>
     #endregion
 
     #region Callbacks to GameManager events
-    protected override void GameMainMenu(GameMainMenuEvent e)
-    {
-        OpenPanel(mainMenuGo);
-    }
-    
-    protected override void GameCredits(GameCreditsEvent e)
-    {
-        OpenPanel(creditsMenuGo);
-    }
-
-    protected override void GameCreateSession(GameCreateSessionEvent e)
-    {
-        OpenPanel(hudGo);
-    }
-
-    protected override void GameJoinSession(GameJoinSessionEvent e)
-    {
-        OpenPanel(hudGo);
-    }
-
-    protected override void GameResume(GameResumeEvent e)
-    {
-        OpenPanel(hudGo);
-    }
-
-    protected override void GamePaused(GamePausedEvent e)
-    {
-        OpenPanel(pausedMenuGo);
-    }
-
-    protected override void GameOver(GameOverEvent e)
-    {
-        OpenPanel(gameOverMenuGo);
-    }
+    protected override void GameMainMenu(GameMainMenuEvent e) { OpenMenu(mainMenuGo); }
+    protected override void GameCredits(GameCreditsEvent e) { OpenMenu(creditsMenuGo); }
+    protected override void GameLobby(GamePlayEvent e) { OpenMenu(lobbyMenuGo); }
+    protected override void GameResume(GameResumeEvent e) { OpenMenu(hudGo); }
+    protected override void GamePaused(GamePausedEvent e) { OpenMenu(pausedMenuGo); }
+    protected override void GameOver(GameOverEvent e) { OpenMenu(gameOverMenuGo); }
     #endregion
 }
