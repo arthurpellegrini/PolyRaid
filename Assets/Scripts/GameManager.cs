@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Threading.Tasks;
-using InputSystem;
 using SDD.Events;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
@@ -21,17 +20,17 @@ public enum GameState
 
 public class GameManager : Manager<GameManager>
 {
-    private GameState _gameState;
+    private GameState _gameState = GameState.Playing;
     public bool IsPlaying => _gameState == GameState.Playing;
 
     private UnityTransport _transport;
-    private PlayerInputController _playerInput;
     
     [SerializeField] private float _GameOverDuration = 60;
     private float _timer;
     private int _score;
     private int _health;
     
+    private string _sessionID;
     private int _lastFrameIndex;
     private float[] _frameDeltaTimeArray = new float[30];
     private int _fps;
@@ -52,18 +51,18 @@ public class GameManager : Manager<GameManager>
     protected override async void Awake()
     {
         base.Awake();
+        await Authenticate();
     }
     
     protected override IEnumerator Start()
     {
         yield return base.Start();
         _transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
-        _playerInput = FindObjectOfType<PlayerInputController>();
     }
 
     protected void Update()
     {
-        // SetSessionInfo();
+        SetSessionInfo();
         if (IsPlaying)
         {
             SetTimer(_timer - Time.deltaTime);
@@ -77,13 +76,9 @@ public class GameManager : Manager<GameManager>
     {
         base.SubscribeEvents();
         EventManager.Instance.AddListener<MainMenuButtonClickedEvent>(MainMenuButtonClicked);
-        EventManager.Instance.AddListener<PlayButtonClickedEvent>(PlayButtonClicked);
-        EventManager.Instance.AddListener<ChangeNameLobbyButtonClickedEvent>(ChangeNameLobbyButtonClicked);
-        EventManager.Instance.AddListener<ReadyLobbyButtonClickedEvent>(ReadyLobbyButtonClicked);
-        EventManager.Instance.AddListener<RefreshLobbiesListButtonClickedEvent>(RefreshLobbiesListButtonClicked);
-        EventManager.Instance.AddListener<AddLobbyButtonClickedEvent>(AddLobbyButtonClicked);
-        EventManager.Instance.AddListener<CreateLobbyButtonClickedEvent>(CreateLobbyButtonClicked);
         EventManager.Instance.AddListener<CreditsButtonClickedEvent>(CreditsButtonClicked);
+        EventManager.Instance.AddListener<CreateSessionButtonClickedEvent>(CreateSessionButtonClicked);
+        EventManager.Instance.AddListener<JoinSessionButtonClickedEvent>(JoinSessionButtonClicked);
         EventManager.Instance.AddListener<ResumeButtonClickedEvent>(ResumeButtonClicked);
         EventManager.Instance.AddListener<EscapeButtonClickedEvent>(EscapeButtonClicked);
         EventManager.Instance.AddListener<QuitButtonClickedEvent>(QuitButtonClicked);
@@ -93,20 +88,53 @@ public class GameManager : Manager<GameManager>
     {
         base.UnsubscribeEvents();
         EventManager.Instance.RemoveListener<MainMenuButtonClickedEvent>(MainMenuButtonClicked);
-        EventManager.Instance.RemoveListener<PlayButtonClickedEvent>(PlayButtonClicked);
-        EventManager.Instance.RemoveListener<ChangeNameLobbyButtonClickedEvent>(ChangeNameLobbyButtonClicked);
-        EventManager.Instance.RemoveListener<ReadyLobbyButtonClickedEvent>(ReadyLobbyButtonClicked);
-        EventManager.Instance.RemoveListener<RefreshLobbiesListButtonClickedEvent>(RefreshLobbiesListButtonClicked);
-        EventManager.Instance.RemoveListener<AddLobbyButtonClickedEvent>(AddLobbyButtonClicked);
-        EventManager.Instance.RemoveListener<CreateLobbyButtonClickedEvent>(CreateLobbyButtonClicked);
         EventManager.Instance.RemoveListener<CreditsButtonClickedEvent>(CreditsButtonClicked);
+        EventManager.Instance.RemoveListener<CreateSessionButtonClickedEvent>(CreateSessionButtonClicked);
+        EventManager.Instance.RemoveListener<JoinSessionButtonClickedEvent>(JoinSessionButtonClicked);
         EventManager.Instance.RemoveListener<ResumeButtonClickedEvent>(ResumeButtonClicked);
         EventManager.Instance.RemoveListener<EscapeButtonClickedEvent>(EscapeButtonClicked);
         EventManager.Instance.RemoveListener<QuitButtonClickedEvent>(QuitButtonClicked);
     }
 
     #endregion
+    
+    #region Unity Netcode + Relay/Lobby
+    private static async Task Authenticate()
+    {
+        await UnityServices.InitializeAsync();
+        await AuthenticationService.Instance.SignInAnonymouslyAsync();
+    }
 
+    public async void CreateMultiplayerRelay()
+    {
+        Allocation a = await RelayService.Instance.CreateAllocationAsync(8);
+        _sessionID = await RelayService.Instance.GetJoinCodeAsync(a.AllocationId);
+        MenuManager.Instance.setInputField(_sessionID);
+        _transport.SetRelayServerData(a.RelayServer.IpV4, (ushort)a.RelayServer.Port, a.AllocationIdBytes, a.Key,
+            a.ConnectionData);
+
+        NetworkManager.Singleton.StartHost();
+    }
+
+    public async void JoinSession()
+    {
+        try
+        {
+            _sessionID = MenuManager.Instance.getInputField();
+            JoinAllocation a = await RelayService.Instance.JoinAllocationAsync(_sessionID);
+
+            _transport.SetClientRelayData(a.RelayServer.IpV4, (ushort)a.RelayServer.Port, a.AllocationIdBytes, a.Key,
+                a.ConnectionData, a.HostConnectionData);
+
+            NetworkManager.Singleton.StartClient();
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("Error when trying to join the session " + e.Message);
+        }
+    }
+    #endregion
+    
     #region GameStatistics
     int SetFrameRate()
     {
@@ -117,13 +145,12 @@ public class GameManager : Manager<GameManager>
         return (int)(_frameDeltaTimeArray.Length / total);
     }
     
-    // void SetSessionInfo()
-    // {
-    //     // _fps = (int)(1f / Time.unscaledDeltaTime);
-    //     _fps = SetFrameRate();
-    //     _ping = _transport ? _transport.DebugSimulator.PacketDelayMS : -1;
-    //     EventManager.Instance.Raise(new SessionStatisticsChangedEvent() { eSessionID = _sessionID, eFps = _fps, ePing = _ping});
-    // }
+    void SetSessionInfo()
+    {
+        // _fps = (int)(1f / Time.unscaledDeltaTime);
+        _fps = SetFrameRate();
+        EventManager.Instance.Raise(new SessionStatisticsChangedEvent() { eSessionID = _sessionID, eFps = _fps });
+    }
 
     void SetTimer(float newTimer)
     {
@@ -137,55 +164,12 @@ public class GameManager : Manager<GameManager>
     #region GameManager Functions
     private void GameMainMenu()
     {
-        if (MusicLoopsManager.Instance && _gameState != GameState.Menu) MusicLoopsManager.Instance.PlayMusic(Constants.MENU_MUSIC);
+        if (MusicLoopsManager.Instance && _gameState != GameState.Menu)
+            MusicLoopsManager.Instance.PlayMusic(Constants.MENU_MUSIC);
         _gameState = GameState.Menu;
         SetTimeScale(1);
         EventManager.Instance.Raise(new GameMainMenuEvent());
     }
-    
-    private void GameLobby()
-    {
-        _gameState = GameState.Menu;
-        SetTimeScale(1);
-        EventManager.Instance.Raise(new GameLobbyEvent());
-    }
-    
-    private void UpdatePlayerName()
-    {
-        _gameState = GameState.Menu;
-        SetTimeScale(1);
-        
-    }
-    
-    private void SetPlayerLobbyStateToReady()
-    {
-        _gameState = GameState.Menu;
-        SetTimeScale(1);
-        EventManager.Instance.Raise(new GameCreditsEvent());
-    }
-    
-    private void RefreshLobbiesList()
-    {
-        _gameState = GameState.Menu;
-        SetTimeScale(1);
-        EventManager.Instance.Raise(new GameCreditsEvent());
-    }
-    
-    private void AddLobby()
-    {
-        _gameState = GameState.Menu;
-        SetTimeScale(1);
-        EventManager.Instance.Raise(new GameCreditsEvent());
-    }
-    
-    private void CreateLobby()
-    {
-        _gameState = GameState.Menu;
-        SetTimeScale(1);
-        EventManager.Instance.Raise(new GameCreditsEvent());
-    }
-    
-    
 
     private void GameCredits()
     {
@@ -194,14 +178,28 @@ public class GameManager : Manager<GameManager>
         EventManager.Instance.Raise(new GameCreditsEvent());
     }
 
-    // private void GamePlay()
-    // {
-    //     if (MusicLoopsManager.Instance) MusicLoopsManager.Instance.PlayMusic(Constants.GAMEPLAY_MUSIC);
-    //     _gameState = GameState.Playing;
-    //     SetTimeScale(1);
-    //
-    //     EventManager.Instance.Raise(new GamePlayEvent());
-    // }
+    private void GameCreateSession()
+    {
+        _gameState = GameState.Playing;
+        SetTimeScale(1);
+        
+        SetTimer(_GameOverDuration); // TODO : Test Timer HUD
+        
+        CreateMultiplayerRelay();
+
+        EventManager.Instance.Raise(new GameCreateSessionEvent());
+    }
+
+    private void GameJoinSession()
+    {
+        if (MusicLoopsManager.Instance) MusicLoopsManager.Instance.PlayMusic(Constants.GAMEPLAY_MUSIC);
+        _gameState = GameState.Playing;
+        SetTimeScale(1);
+        
+        JoinSession();
+
+        EventManager.Instance.Raise(new GameJoinSessionEvent());
+    }
 
     private void GameResume()
     {
@@ -227,18 +225,14 @@ public class GameManager : Manager<GameManager>
 
     #region Callbacks to Events issued by MenuManager
     private void MainMenuButtonClicked(MainMenuButtonClickedEvent e) { GameMainMenu(); }
-    private void PlayButtonClicked(PlayButtonClickedEvent e) { GameLobby(); }
-    private void ChangeNameLobbyButtonClicked(ChangeNameLobbyButtonClickedEvent e) { UpdatePlayerName(); }
-    private void ReadyLobbyButtonClicked(ReadyLobbyButtonClickedEvent e) { SetPlayerLobbyStateToReady(); }
-    private void RefreshLobbiesListButtonClicked(RefreshLobbiesListButtonClickedEvent e) { RefreshLobbiesList(); }
-    private void AddLobbyButtonClicked(AddLobbyButtonClickedEvent e) { AddLobby(); }
-    private void CreateLobbyButtonClicked(CreateLobbyButtonClickedEvent e) { CreateLobby(); }
     private void CreditsButtonClicked(CreditsButtonClickedEvent e) { GameCredits(); }
+    private void CreateSessionButtonClicked(CreateSessionButtonClickedEvent e) { GameCreateSession(); }
+    private void JoinSessionButtonClicked(JoinSessionButtonClickedEvent e) { GameJoinSession(); }
     private void ResumeButtonClicked(ResumeButtonClickedEvent e) { GameResume(); }
     private void EscapeButtonClicked(EscapeButtonClickedEvent e) { if (IsPlaying) GamePaused(); else GameResume(); }
     private void QuitButtonClicked(QuitButtonClickedEvent e) { Application.Quit(); }
-
     #endregion
+    
     void EnemyHasBeenHit(EnemyHasBeenHitEvent e)
     {
         // IScore score = e.eEnemyGO.GetComponent<IScore>();

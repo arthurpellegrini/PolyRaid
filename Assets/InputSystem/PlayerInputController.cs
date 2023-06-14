@@ -27,17 +27,24 @@ namespace InputSystem
 
 		private void OnApplicationFocus(bool hasFocus)
 		{
-			if (hasFocus && GameManager.Instance.IsPlaying)
+			if (hasFocus)
 			{
-				cursorInputForLook = true;
-				SetCursorState(true); // Verrouillez le curseur uniquement si vous n'êtes pas dans le menu
-				SetCursorVisible(false);
+				SetCursorVisible(!GameManager.Instance.IsPlaying);
+				if (!GameManager.Instance.IsPlaying)
+				{
+					cursorInputForLook = false;
+					SetCursorState(false); // Déverrouillez le curseur si vous êtes dans le menu
+				}
+				else
+				{
+					cursorInputForLook = true;
+					SetCursorState(true); // Verrouillez le curseur uniquement si vous n'êtes pas dans le menu
+				}
 			}
 			else
 			{
 				cursorInputForLook = false;
-				SetCursorState(false); // Déverrouillez le curseur si vous êtes dans le menu
-				SetCursorVisible(true);
+				SetCursorState(false); // Déverrouillez le curseur lorsque vous perdez le focus sur la fenêtre
 			}
 		}
 

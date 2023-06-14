@@ -31,6 +31,7 @@ RectTransform:
   m_Children:
   - {fileID: 2684338403810265212}
   - {fileID: 418958467440973242}
+  - {fileID: 3306287770162965162}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -600,7 +601,6 @@ RectTransform:
   - {fileID: 1322660671064097820}
   - {fileID: 1068031932888884494}
   - {fileID: 564999941062982803}
-  - {fileID: 3306287770162965162}
   m_Father: {fileID: 8810616753722666830}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -673,12 +673,17 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
-    m_TransformParent: {fileID: 418958467440973242}
+    m_TransformParent: {fileID: 8810616753722666830}
     m_Modifications:
     - target: {fileID: 4267585757037274403, guid: 6d730e0e3223cef478096d4b7e381471,
         type: 3}
       propertyPath: m_Name
-      value: Button_Back
+      value: Button_Main_Menu
+      objectReference: {fileID: 0}
+    - target: {fileID: 4569115803632937992, guid: 6d730e0e3223cef478096d4b7e381471,
+        type: 3}
+      propertyPath: m_text
+      value: Main Menu
       objectReference: {fileID: 0}
     - target: {fileID: 4569115803632937992, guid: 6d730e0e3223cef478096d4b7e381471,
         type: 3}
@@ -698,17 +703,17 @@ PrefabInstance:
     - target: {fileID: 7966313874730256147, guid: 6d730e0e3223cef478096d4b7e381471,
         type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7966313874730256147, guid: 6d730e0e3223cef478096d4b7e381471,
         type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0.59300005
+      value: 0.578
       objectReference: {fileID: 0}
     - target: {fileID: 7966313874730256147, guid: 6d730e0e3223cef478096d4b7e381471,
         type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0.17034504
+      value: 0.21000001
       objectReference: {fileID: 0}
     - target: {fileID: 7966313874730256147, guid: 6d730e0e3223cef478096d4b7e381471,
         type: 3}
@@ -718,7 +723,7 @@ PrefabInstance:
     - target: {fileID: 7966313874730256147, guid: 6d730e0e3223cef478096d4b7e381471,
         type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0.09730994
+      value: 0.15400001
       objectReference: {fileID: 0}
     - target: {fileID: 7966313874730256147, guid: 6d730e0e3223cef478096d4b7e381471,
         type: 3}
