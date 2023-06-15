@@ -167,7 +167,7 @@ public class GameManager : Manager<GameManager>
             _gameState = GameState.Playing;
             SetTimeScale(1);
 
-            _relayJoinData = await RelayManager.Instance.JoinRelay(MenuManager.Instance.getInputField());
+            _relayJoinData = await RelayManager.Instance.JoinRelay(MenuManager.Instance.GetInputField());
 
             EventManager.Instance.Raise(new GameJoinSessionEvent());
         } 

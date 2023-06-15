@@ -20,8 +20,7 @@ public class MenuManager : Manager<MenuManager>
     
     [Header("MainMenu")]
     [SerializeField] private TMP_InputField _tmpInputField;
-    public string getInputField() { return _tmpInputField.text; }
-    public void setInputField(string newText) { _tmpInputField.text = newText; }
+    public string GetInputField() => _tmpInputField.text;
     [SerializeField] private Button _tmpJoinButton;
     
     [Header("ErrorMenu")]
