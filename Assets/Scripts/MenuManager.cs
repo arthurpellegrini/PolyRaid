@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using SDD.Events;
 using TMPro;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class MenuManager : Manager<MenuManager>
@@ -13,13 +14,19 @@ public class MenuManager : Manager<MenuManager>
     [SerializeField] private GameObject creditsMenuGo;
     [SerializeField] private GameObject pausedMenuGo;
     [SerializeField] private GameObject gameOverMenuGo;
+    [SerializeField] private GameObject gameErrorMenuGo;
     [SerializeField] private GameObject hudGo;
     private List<GameObject> allPanels;
     
+    [Header("MainMenu")]
     [SerializeField] private TMP_InputField _tmpInputField;
     public string getInputField() { return _tmpInputField.text; }
     public void setInputField(string newText) { _tmpInputField.text = newText; }
     [SerializeField] private Button _tmpJoinButton;
+    
+    [Header("ErrorMenu")]
+    [SerializeField] private TMP_Text _tmpErrorTitle;
+    [SerializeField] private TMP_Text _tmpErrorDescription;
     
     #region Manager implementation
     protected override IEnumerator InitCoroutine()
@@ -54,6 +61,7 @@ public class MenuManager : Manager<MenuManager>
             creditsMenuGo,
             pausedMenuGo,
             gameOverMenuGo,
+            gameErrorMenuGo,
             hudGo
         };
     }
@@ -146,6 +154,12 @@ public class MenuManager : Manager<MenuManager>
     protected override void GameOver(GameOverEvent e)
     {
         OpenPanel(gameOverMenuGo);
+    }
+    protected override void GameError(GameErrorEvent e)
+    {
+        _tmpErrorTitle.text = e.eErrorTitle;
+        _tmpErrorDescription.text = e.eErrorDescription;
+        OpenPanel(gameErrorMenuGo);
     }
     #endregion
 }

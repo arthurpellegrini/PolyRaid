@@ -3,7 +3,7 @@ using UnityEngine;
 namespace Player
 {
     [RequireComponent(typeof(CharacterController))]
-    public class CharacterControllerGizmo : MonoBehaviour
+    public class PlayerControllerGizmo : MonoBehaviour
     {
         private CharacterController characterController;
 

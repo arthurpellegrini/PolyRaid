@@ -1,12 +1,16 @@
 ﻿using System.Collections;
-using Cinemachine;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class LevelManager : Manager<LevelManager>
 {
+	private MapState _mapState = MapState.Test;
+	public int GetMapState => (int)_mapState;
+	
 	#region Manager implementation
 	protected override IEnumerator InitCoroutine()
 	{
+		RegisterMaps();
 		yield break;
 	}
 	#endregion
@@ -21,31 +25,57 @@ public class LevelManager : Manager<LevelManager>
 		base.UnsubscribeEvents();
 	}
 	
-	#region GameObjects (Player & Environnement --> Scene)
-	[SerializeField] private CinemachineVirtualCamera VirtualCamera;
-	[SerializeField] private GameObject PlayerPrefab;
-	[SerializeField] private GameObject EnvironmentPrefab;
+	#region GameObjects
+	[SerializeField] private GameObject _playerPrefab;
+	[SerializeField] private Map _testPrefab;
+	[SerializeField] private GameObject _esieeItPrefab;
+	[SerializeField] private GameObject _yassinePrefab;
+	[SerializeField] private GameObject _clementPrefab;
 
-	private GameObject PlayerGo;
-	private GameObject EnvironementGo;
+	private List<Map> allMapsPrefab;
+	
+	private Map _currentMapGo;
+	private List<Transform> _spawnPoints;
+	private int _randomSpawnPoint=0;
 
-	private void InitScene()
+	private void RegisterMaps()
 	{
-		EnvironementGo = Instantiate(EnvironmentPrefab, Vector3.zero, Quaternion.identity);
-		// PlayerGo = Instantiate(PlayerPrefab, Vector3.zero, Quaternion.identity);
-		// VirtualCamera.Follow = PlayerGo.transform;
+		allMapsPrefab = new List<Map>
+		{
+			_testPrefab,
+			// _esieeItPrefab,
+			// _yassinePrefab,
+			// _clementPrefab
+		};
+	}
+	
+	public Transform GetRandomSpawnPoint()
+	{
+		if (_spawnPoints.Count == 0)
+		{
+			Debug.LogError("La liste des points de spawn est vide !");
+			return null;
+		}
+		return _spawnPoints[_randomSpawnPoint%_spawnPoints.Count];
 	}
 
-	private void DestroyScene()
+	private void InitMap()
 	{
-		// if(PlayerGo) Destroy(PlayerGo);
-		if(EnvironementGo) Destroy(EnvironementGo);
+		_mapState = 0;
+		// _mapState = (MapState)Random.Range(0, 2); // Synchronize with server that radom each new session
+		_currentMapGo = Instantiate(allMapsPrefab[(int)_mapState], Vector3.zero, Quaternion.identity);
+		_spawnPoints = _currentMapGo.SpawnPoints;
+	}
+
+	private void DestroyMap()
+	{
+		if(_currentMapGo) Destroy(_currentMapGo);
 	}
 	#endregion
 	
 	protected override void GameMainMenu(GameMainMenuEvent e)
 	{
-		DestroyScene();
+		DestroyMap();
 	}
 	
 	protected override void GameCredits(GameCreditsEvent e)
@@ -55,12 +85,12 @@ public class LevelManager : Manager<LevelManager>
 
 	protected override void GameCreateSession(GameCreateSessionEvent e)
 	{
-		InitScene();
+		InitMap();
 	}
 
 	protected override void GameJoinSession(GameJoinSessionEvent e)
 	{
-		InitScene();
+		InitMap();
 	}
 
 	protected override void GameResume(GameResumeEvent e)

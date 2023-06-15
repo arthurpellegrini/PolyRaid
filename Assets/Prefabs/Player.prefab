@@ -190,7 +190,6 @@ MonoBehaviour:
   look: {x: 0, y: 0}
   jump: 0
   sprint: 0
-  cursorInputForLook: 1
 --- !u!114 &3744710490433315896
 MonoBehaviour:
   m_ObjectHideFlags: 0

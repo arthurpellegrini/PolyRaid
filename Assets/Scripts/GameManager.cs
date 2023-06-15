@@ -1,29 +1,25 @@
 ﻿using System;
 using System.Collections;
+using System.Net.Http;
+using System.Net.Mail;
 using System.Threading.Tasks;
 using SDD.Events;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
-using Unity.Services.Authentication;
-using Unity.Services.Core;
-using Unity.Services.Relay;
-using Unity.Services.Relay.Models;
+// using Unity.Services.Authentication;
+// using Unity.Services.Core;
+// using Unity.Services.Relay;
+// using Unity.Services.Relay.Models;
 using UnityEngine;
-
-public enum GameState
-{
-    Menu,
-    Playing,
-    Paused,
-    GameOver
-}
 
 public class GameManager : Manager<GameManager>
 {
     private GameState _gameState = GameState.Playing;
     public bool IsPlaying => _gameState == GameState.Playing;
 
-    private UnityTransport _transport;
+    private RelayHostData _relayHostData;
+    private RelayJoinData _relayJoinData;
+    // private UnityTransport _transport;
     
     [SerializeField] private float _GameOverDuration = 60;
     private float _timer;
@@ -47,24 +43,12 @@ public class GameManager : Manager<GameManager>
         EventManager.Instance.Raise(new MainMenuButtonClickedEvent());
         yield break;
     }
-    
-    protected override async void Awake()
-    {
-        base.Awake();
-        await Authenticate();
-    }
-    
-    protected override IEnumerator Start()
-    {
-        yield return base.Start();
-        _transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
-    }
 
     protected void Update()
     {
-        SetSessionInfo();
         if (IsPlaying)
         {
+            SetSessionInfo();
             // SetTimer(_timer - Time.deltaTime);
         }
     }
@@ -97,62 +81,38 @@ public class GameManager : Manager<GameManager>
     }
 
     #endregion
-    
-    #region Unity Netcode + Relay/Lobby
-    private static async Task Authenticate()
-    {
-        await UnityServices.InitializeAsync();
-        await AuthenticationService.Instance.SignInAnonymouslyAsync();
-    }
 
-    public async void CreateMultiplayerRelay()
-    {
-        Allocation a = await RelayService.Instance.CreateAllocationAsync(8);
-        _sessionID = await RelayService.Instance.GetJoinCodeAsync(a.AllocationId);
-        MenuManager.Instance.setInputField(_sessionID);
-        _transport.SetRelayServerData(a.RelayServer.IpV4, (ushort)a.RelayServer.Port, a.AllocationIdBytes, a.Key,
-            a.ConnectionData);
-
-        NetworkManager.Singleton.StartHost();
-    }
-
-    public async void JoinSession()
-    {
-        try
-        {
-            _sessionID = MenuManager.Instance.getInputField();
-            JoinAllocation a = await RelayService.Instance.JoinAllocationAsync(_sessionID);
-
-            _transport.SetClientRelayData(a.RelayServer.IpV4, (ushort)a.RelayServer.Port, a.AllocationIdBytes, a.Key,
-                a.ConnectionData, a.HostConnectionData);
-
-            NetworkManager.Singleton.StartClient();
-        }
-        catch (Exception e)
-        {
-            Debug.LogError("Error when trying to join the session " + e.Message);
-        }
-    }
-    #endregion
-    
     #region GameStatistics
-    int SetFrameRate()
+    private int SetFrameRate()
     {
         _frameDeltaTimeArray[_lastFrameIndex] = Time.deltaTime;
         _lastFrameIndex = (_lastFrameIndex + 1) % _frameDeltaTimeArray.Length;
         float total = 0f;
         foreach (float deltaTime in _frameDeltaTimeArray) total += deltaTime;
-        return (int)(_frameDeltaTimeArray.Length / total);
+        return Mathf.RoundToInt(_frameDeltaTimeArray.Length / total);
     }
     
-    void SetSessionInfo()
+    private void SetSessionInfo()
     {
-        // _fps = (int)(1f / Time.unscaledDeltaTime);
-        _fps = SetFrameRate();
-        EventManager.Instance.Raise(new SessionStatisticsChangedEvent() { eSessionID = _sessionID, eFps = _fps });
+        if (IsHost) 
+        {
+            EventManager.Instance.Raise(new SessionStatisticsChangedEvent()
+            {
+                eSessionID = _relayHostData.JoinCode, 
+                eFps = SetFrameRate()
+            });
+        }
+        else if (IsClient)
+        {
+            EventManager.Instance.Raise(new SessionStatisticsChangedEvent()
+            {
+                eSessionID = _relayJoinData.JoinCode, 
+                eFps = SetFrameRate()
+            });
+        }
     }
 
-    void SetTimer(float newTimer)
+    private void SetTimer(float newTimer)
     {
         _timer = Mathf.Max(newTimer, 0);
         EventManager.Instance.Raise(new GameStatisticsChangedEvent() { eTimer = newTimer });
@@ -165,8 +125,7 @@ public class GameManager : Manager<GameManager>
     private void GameMainMenu()
     {
         NetworkManager.Singleton.Shutdown();
-        if (MusicLoopsManager.Instance && _gameState != GameState.Menu)
-            MusicLoopsManager.Instance.PlayMusic(Constants.MENU_MUSIC);
+        if (_gameState != GameState.Menu) MusicLoopsManager.Instance.PlayMusic(Constants.MENU_MUSIC);
         _gameState = GameState.Menu;
         SetTimeScale(1);
         EventManager.Instance.Raise(new GameMainMenuEvent());
@@ -179,28 +138,45 @@ public class GameManager : Manager<GameManager>
         EventManager.Instance.Raise(new GameCreditsEvent());
     }
 
-    private void GameCreateSession()
+    private async void GameCreateSession()
     {
-        // if (MusicLoopsManager.Instance) MusicLoopsManager.Instance.PlayMusic(Constants.GAMEPLAY_MUSIC);
-        _gameState = GameState.Playing;
-        SetTimeScale(1);
-        
-        // SetTimer(_GameOverDuration); // TODO : Test Timer HUD
-        
-        CreateMultiplayerRelay();
+        try
+        {
+            // if (MusicLoopsManager.Instance) MusicLoopsManager.Instance.PlayMusic(Constants.GAMEPLAY_MUSIC);
+            _gameState = GameState.Playing;
+            SetTimeScale(1);
 
-        EventManager.Instance.Raise(new GameCreateSessionEvent());
+            // SetTimer(_GameOverDuration); // TODO : Test Timer HUD
+
+            _relayHostData = await RelayManager.Instance.SetupRelay();
+
+            EventManager.Instance.Raise(new GameCreateSessionEvent());
+        } 
+        catch (Exception e)
+        {
+            _gameState = GameState.Menu;
+            EventManager.Instance.Raise(
+                new GameErrorEvent() { eErrorTitle = "Setup Relay Error", eErrorDescription = e.Message });
+        }
     }
 
-    private void GameJoinSession()
+    private async void GameJoinSession()
     {
-        // if (MusicLoopsManager.Instance) MusicLoopsManager.Instance.PlayMusic(Constants.GAMEPLAY_MUSIC);
-        _gameState = GameState.Playing;
-        SetTimeScale(1);
-        
-        JoinSession();
+        try {
+            // if (MusicLoopsManager.Instance) MusicLoopsManager.Instance.PlayMusic(Constants.GAMEPLAY_MUSIC);
+            _gameState = GameState.Playing;
+            SetTimeScale(1);
 
-        EventManager.Instance.Raise(new GameJoinSessionEvent());
+            _relayJoinData = await RelayManager.Instance.JoinRelay(MenuManager.Instance.getInputField());
+
+            EventManager.Instance.Raise(new GameJoinSessionEvent());
+        } 
+        catch (Exception e)
+        {
+            _gameState = GameState.Menu;
+            EventManager.Instance.Raise(
+                new GameErrorEvent() { eErrorTitle = "Join Relay Error", eErrorDescription = e.Message });
+        }
     }
 
     private void GameResume()

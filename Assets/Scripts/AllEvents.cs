@@ -8,6 +8,11 @@ public class GameJoinSessionEvent : SDD.Events.Event { }
 public class GameResumeEvent : SDD.Events.Event { }
 public class GamePausedEvent : SDD.Events.Event { }
 public class GameOverEvent : SDD.Events.Event { }
+public class GameErrorEvent : SDD.Events.Event
+{
+	public string eErrorTitle { get; set; }
+	public string eErrorDescription { get; set; }
+}
 
 public class GameStatisticsChangedEvent : SDD.Events.Event
 {
@@ -22,8 +27,6 @@ public class SessionStatisticsChangedEvent : SDD.Events.Event
 	public string eSessionID { get; set; }
 	public int eFps { get; set; }
 }
-
-public enum Weapon { M4 = 0, M19 = 1, MP5 = 2, FR_F2 = 3 }
 
 public class PlayerStatisticsChangedEvent : SDD.Events.Event
 {

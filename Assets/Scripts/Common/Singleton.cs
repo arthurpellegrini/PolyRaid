@@ -3,12 +3,11 @@ using UnityEngine;
 
 public abstract class Singleton<T> : NetworkBehaviour where T:Component {
 
-	static T _instance;
+	private static T _instance;
 	public static T Instance => _instance;
 
 	[Header("Singleton")]
-	[SerializeField]
-	private bool m_DoNotDestroyGameObjectOnLoad;
+	[SerializeField] private bool m_DoNotDestroyGameObjectOnLoad;
 
 	protected virtual void Awake()
 	{
