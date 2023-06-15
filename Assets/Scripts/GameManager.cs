@@ -65,7 +65,7 @@ public class GameManager : Manager<GameManager>
         SetSessionInfo();
         if (IsPlaying)
         {
-            SetTimer(_timer - Time.deltaTime);
+            // SetTimer(_timer - Time.deltaTime);
         }
     }
     #endregion
@@ -183,7 +183,7 @@ public class GameManager : Manager<GameManager>
         _gameState = GameState.Playing;
         SetTimeScale(1);
         
-        SetTimer(_GameOverDuration); // TODO : Test Timer HUD
+        // SetTimer(_GameOverDuration); // TODO : Test Timer HUD
         
         CreateMultiplayerRelay();
 

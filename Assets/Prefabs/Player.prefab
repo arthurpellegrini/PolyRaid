@@ -191,7 +191,6 @@ MonoBehaviour:
   jump: 0
   sprint: 0
   cursorInputForLook: 1
-  inMenu: 1
 --- !u!114 &3744710490433315896
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1102,6 +1101,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4700353710520012700}
   - component: {fileID: 1300112120135678313}
+  - component: {fileID: 651201187550898048}
   m_Layer: 0
   m_Name: Default_Character
   m_TagString: Untagged
@@ -1147,6 +1147,20 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &651201187550898048
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4700353710519980668}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8d0727d5ae3244e3b569694d3912374, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TransitionStateInfoList: []
+  m_Animator: {fileID: 1300112120135678313}
 --- !u!1 &4700353710519980670
 GameObject:
   m_ObjectHideFlags: 0
@@ -2994,7 +3008,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &5323067771146379108
 RectTransform:
   m_ObjectHideFlags: 0

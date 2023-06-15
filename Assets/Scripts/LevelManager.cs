@@ -55,7 +55,7 @@ public class LevelManager : Manager<LevelManager>
 
 	protected override void GameCreateSession(GameCreateSessionEvent e)
 	{
-		InitScene(); //TODO : REMOVE IF USE RELAY
+		InitScene();
 	}
 
 	protected override void GameJoinSession(GameJoinSessionEvent e)

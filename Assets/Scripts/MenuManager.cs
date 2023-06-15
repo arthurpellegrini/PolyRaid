@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using SDD.Events;
 using TMPro;
+using UnityEngine.UI;
 
 public class MenuManager : Manager<MenuManager>
 {
@@ -13,11 +14,13 @@ public class MenuManager : Manager<MenuManager>
     [SerializeField] private GameObject pausedMenuGo;
     [SerializeField] private GameObject gameOverMenuGo;
     [SerializeField] private GameObject hudGo;
-    [Header("Unity Relay")]
-    [SerializeField] private TMP_InputField _tmpInputField;
-
     private List<GameObject> allPanels;
-
+    
+    [SerializeField] private TMP_InputField _tmpInputField;
+    public string getInputField() { return _tmpInputField.text; }
+    public void setInputField(string newText) { _tmpInputField.text = newText; }
+    [SerializeField] private Button _tmpJoinButton;
+    
     #region Manager implementation
     protected override IEnumerator InitCoroutine()
     {
@@ -30,6 +33,7 @@ public class MenuManager : Manager<MenuManager>
     {
         base.Awake();
         RegisterPanels();
+        _tmpJoinButton.interactable = false;
     }
 
     private void Update()
@@ -63,15 +67,6 @@ public class MenuManager : Manager<MenuManager>
                 item.SetActive(item == panel);
             }
         }
-    }
-    
-    public string getInputField()
-    {
-        return _tmpInputField.text;
-    }
-    public void setInputField(string newText)
-    {
-        _tmpInputField.text = newText;
     }
     #endregion
 
@@ -109,6 +104,11 @@ public class MenuManager : Manager<MenuManager>
     public void QuitButtonHasBeenClicked()
     {
         EventManager.Instance.Raise(new QuitButtonClickedEvent());
+    }
+
+    public void OnCodeSessionValueChanged(string code)
+    {
+        _tmpJoinButton.interactable = code.Length >= 6;
     }
     #endregion
 
