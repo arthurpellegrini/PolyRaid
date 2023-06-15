@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+﻿using Unity.Netcode;
+using UnityEngine;
 
-public abstract class Singleton<T> : MonoBehaviour where T:Component {
+public abstract class Singleton<T> : NetworkBehaviour where T:Component {
 
 	static T _instance;
 	public static T Instance => _instance;

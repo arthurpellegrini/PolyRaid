@@ -32,7 +32,7 @@ public abstract class SingletonGameStateObserver<T> :  Singleton<T>,IEventHandle
 	}
 
 	protected override void Awake() { base.Awake(); SubscribeEvents(); }
-	protected virtual void OnDestroy() { UnsubscribeEvents(); }
+	public override void OnDestroy() { base.OnDestroy(); UnsubscribeEvents(); }
 	
 	protected virtual void GameMainMenu(GameMainMenuEvent e) { }
 	protected virtual void GameCredits(GameCreditsEvent e) { }

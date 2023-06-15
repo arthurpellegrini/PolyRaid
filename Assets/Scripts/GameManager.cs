@@ -164,6 +164,7 @@ public class GameManager : Manager<GameManager>
     #region GameManager Functions
     private void GameMainMenu()
     {
+        NetworkManager.Singleton.Shutdown();
         if (MusicLoopsManager.Instance && _gameState != GameState.Menu)
             MusicLoopsManager.Instance.PlayMusic(Constants.MENU_MUSIC);
         _gameState = GameState.Menu;
@@ -180,6 +181,7 @@ public class GameManager : Manager<GameManager>
 
     private void GameCreateSession()
     {
+        // if (MusicLoopsManager.Instance) MusicLoopsManager.Instance.PlayMusic(Constants.GAMEPLAY_MUSIC);
         _gameState = GameState.Playing;
         SetTimeScale(1);
         
@@ -192,7 +194,7 @@ public class GameManager : Manager<GameManager>
 
     private void GameJoinSession()
     {
-        if (MusicLoopsManager.Instance) MusicLoopsManager.Instance.PlayMusic(Constants.GAMEPLAY_MUSIC);
+        // if (MusicLoopsManager.Instance) MusicLoopsManager.Instance.PlayMusic(Constants.GAMEPLAY_MUSIC);
         _gameState = GameState.Playing;
         SetTimeScale(1);
         

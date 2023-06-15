@@ -10,48 +10,62 @@ namespace InputSystem
 		public Vector2 look;
 		public bool jump;
 		public bool sprint;
-		[Header("Mouse Cursor Settings")]
-		[SerializeField] public bool cursorInputForLook = true;
 
-		public void OnMove(InputValue value) { MoveInput(value.Get<Vector2>()); }
-		public void MoveInput(Vector2 newMoveDirection) { move = newMoveDirection; } 
-	
-		public void OnLook(InputValue value) { if (cursorInputForLook) LookInput(value.Get<Vector2>()); }
+		public void OnMove(InputValue value)
+		{
+			if (GameManager.Instance.IsPlaying) MoveInput(value.Get<Vector2>());
+			else MoveInput(new Vector2(0,0));
+		}
+		public void MoveInput(Vector2 newMoveDirection) { move = newMoveDirection; }
+
+		public void OnLook(InputValue value)
+		{
+			if (GameManager.Instance.IsPlaying) LookInput(value.Get<Vector2>());
+			else LookInput(new Vector2(0,0));
+		}
 		public void LookInput(Vector2 newLookDirection) { look = newLookDirection; }
 
-		public void OnJump(InputValue value) { JumpInput(value.isPressed); }
+		public void OnJump(InputValue value)
+		{
+			if (GameManager.Instance.IsPlaying) JumpInput(value.isPressed); 
+			else JumpInput(false);
+		}
 		public void JumpInput(bool newJumpState) { jump = newJumpState; }
-	
-		public void OnSprint(InputValue value) { SprintInput(value.isPressed); }
+
+		public void OnSprint(InputValue value)
+		{
+			if (GameManager.Instance.IsPlaying) SprintInput(value.isPressed);
+			else SprintInput(false);
+		}
 		public void SprintInput(bool newSprintState) { sprint = newSprintState; }
 
 		private void OnApplicationFocus(bool hasFocus)
 		{
-			if (hasFocus)
+			if (hasFocus && GameManager.Instance.IsPlaying)
 			{
-				SetCursorVisible(!GameManager.Instance.IsPlaying);
-				if (!GameManager.Instance.IsPlaying)
-				{
-					cursorInputForLook = false;
-					SetCursorState(false); // Déverrouillez le curseur si vous êtes dans le menu
-				}
-				else
-				{
-					cursorInputForLook = true;
-					SetCursorState(true); // Verrouillez le curseur uniquement si vous n'êtes pas dans le menu
-				}
+				LockCursor();
 			}
-			else
+			else // In menus for example
 			{
-				cursorInputForLook = false;
-				SetCursorState(false); // Déverrouillez le curseur lorsque vous perdez le focus sur la fenêtre
+				UnlockCursor(); 
 			}
 		}
 
-		private void SetCursorState(bool locked)
+		private void LockCursor()
 		{
-			Cursor.lockState = locked ? CursorLockMode.Locked : CursorLockMode.None;
+			// Why do we change the lock state of the cursor twice ?
+			// See the Unity Forum => https://discussions.unity.com/t/cursor-lockstate-not-working/145392
+			Cursor.lockState = CursorLockMode.None; 
+			Cursor.lockState = CursorLockMode.Locked;
+			Cursor.visible = false;
+			Debug.Log("Lock");
 		}
-		public void SetCursorVisible(bool visible) { Cursor.visible = visible; }
+
+		private void UnlockCursor()
+		{
+			Cursor.lockState = CursorLockMode.None;
+			Cursor.visible = true;
+			Debug.Log("Unlock");
+		}
 	}
 }
