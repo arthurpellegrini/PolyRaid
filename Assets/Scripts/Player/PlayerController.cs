@@ -103,6 +103,12 @@ namespace Player
 			_input = GetComponent<PlayerInputController>();
 			// _playerInput = GetComponent<PlayerInput>();
 
+			if (IsClient && IsOwner)
+			{
+				// Appeler la fonction RPC RequestSpawnPointFromServerRpc() pour demander le SpawnPoint
+				LevelManager.Instance.ResponseSpawnPointToServerRpc(GetComponent<NetworkObject>().OwnerClientId);
+			}
+
 			// reset our timeouts on start
 			_jumpTimeoutDelta = JumpTimeout;
 			_fallTimeoutDelta = FallTimeout;

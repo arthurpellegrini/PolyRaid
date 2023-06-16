@@ -58,14 +58,12 @@ namespace InputSystem
 			Cursor.lockState = CursorLockMode.None; 
 			Cursor.lockState = CursorLockMode.Locked;
 			Cursor.visible = false;
-			Debug.Log("Lock");
 		}
 
 		private void UnlockCursor()
 		{
 			Cursor.lockState = CursorLockMode.None;
 			Cursor.visible = true;
-			Debug.Log("Unlock");
 		}
 	}
 }
