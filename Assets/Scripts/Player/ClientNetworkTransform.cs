@@ -1,8 +1,10 @@
 ﻿using Unity.Netcode.Components;
+using UnityEngine;
 
 namespace Player
 {
-    public class NetworkTransformClient : NetworkTransform
+    [DisallowMultipleComponent]
+    public class ClientNetworkTransform : NetworkTransform
     {
         protected override bool OnIsServerAuthoritative()
         {

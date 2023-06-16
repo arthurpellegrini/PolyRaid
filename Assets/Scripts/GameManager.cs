@@ -1,15 +1,8 @@
 ﻿using System;
 using System.Collections;
-using System.Net.Http;
-using System.Net.Mail;
 using System.Threading.Tasks;
 using SDD.Events;
 using Unity.Netcode;
-using Unity.Netcode.Transports.UTP;
-// using Unity.Services.Authentication;
-// using Unity.Services.Core;
-// using Unity.Services.Relay;
-// using Unity.Services.Relay.Models;
 using UnityEngine;
 
 public class GameManager : Manager<GameManager>
@@ -21,7 +14,7 @@ public class GameManager : Manager<GameManager>
     private RelayJoinData _relayJoinData;
     // private UnityTransport _transport;
     
-    [SerializeField] private float _GameOverDuration = 60;
+    // [SerializeField] private float _GameOverDuration = 60;
     private float _timer;
     private int _score;
     private int _health;
@@ -112,13 +105,13 @@ public class GameManager : Manager<GameManager>
         }
     }
 
-    private void SetTimer(float newTimer)
-    {
-        _timer = Mathf.Max(newTimer, 0);
-        EventManager.Instance.Raise(new GameStatisticsChangedEvent() { eTimer = newTimer });
-
-        if (_timer == 0) GameOver();
-    }
+    // private void SetTimer(float newTimer)
+    // {
+    //     _timer = Mathf.Max(newTimer, 0);
+    //     EventManager.Instance.Raise(new GameStatisticsChangedEvent() { eTimer = newTimer });
+    //
+    //     if (_timer == 0) GameOver();
+    // }
     #endregion
 
     #region GameManager Functions
@@ -149,7 +142,7 @@ public class GameManager : Manager<GameManager>
             // SetTimer(_GameOverDuration); // TODO : Test Timer HUD
 
             _relayHostData = await RelayManager.Instance.SetupRelay();
-
+            NetworkManager.Singleton.StartHost();
             EventManager.Instance.Raise(new GameCreateSessionEvent());
         } 
         catch (Exception e)
@@ -167,8 +160,8 @@ public class GameManager : Manager<GameManager>
             _gameState = GameState.Playing;
             SetTimeScale(1);
 
-            _relayJoinData = await RelayManager.Instance.JoinRelay(MenuManager.Instance.GetInputField());
-
+            _relayJoinData = await RelayManager.Instance.JoinRelay(MenuManager.Instance.GetInputSessionId());
+            NetworkManager.Singleton.StartClient();
             EventManager.Instance.Raise(new GameJoinSessionEvent());
         } 
         catch (Exception e)
@@ -211,12 +204,12 @@ public class GameManager : Manager<GameManager>
     private void QuitButtonClicked(QuitButtonClickedEvent e) { Application.Quit(); }
     #endregion
     
-    void EnemyHasBeenHit(EnemyHasBeenHitEvent e)
-    {
+    // void EnemyHasBeenHit(EnemyHasBeenHitEvent e)
+    // {
         // IScore score = e.eEnemyGO.GetComponent<IScore>();
         // if (score != null)
         // {
         //     SetScore(m_Score + score.Score);
         // }
-    }
+    // }
 }

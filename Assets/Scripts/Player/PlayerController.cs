@@ -1,5 +1,6 @@
 ﻿using Cinemachine;
 using InputSystem;
+using SDD.Events;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -77,13 +78,11 @@ namespace Player
 		private PlayerInputController _input;
 		private GameObject _mainCamera;
 
-		// private bool IsCurrentDeviceMouse => _playerInput.currentControlScheme == "KeyboardMouse";
-		// private bool IsCurrentDeviceMouse => _input.currentControlScheme == "KeyboardMouse";
-
 		public override void OnNetworkSpawn()
 		{
 			//If this is not the owner, turn of player inputs
 			if (!IsOwner) gameObject.GetComponent<PlayerInput>().enabled = false;
+			
 			CinemachineVirtualCamera.Priority = IsOwner ? 10 : 0;
 		}
 		
@@ -101,14 +100,16 @@ namespace Player
 			_animator = CharacterRig.GetComponent<Animator>();
 			_controller = GetComponent<CharacterController>();
 			_input = GetComponent<PlayerInputController>();
-			// _playerInput = GetComponent<PlayerInput>();
 
 			if (IsClient && IsOwner)
 			{
-				// Appeler la fonction RPC RequestSpawnPointFromServerRpc() pour demander le SpawnPoint
-				LevelManager.Instance.ResponseSpawnPointToServerRpc(GetComponent<NetworkObject>().OwnerClientId);
+				Transform newtransform = LevelManager.Instance.GetRandomSpawn();
+				transform.position = newtransform.position;
+				transform.rotation = newtransform.rotation;
+				_mainCamera.transform.position = newtransform.position;
+				_mainCamera.transform.rotation = newtransform.rotation;
 			}
-
+			
 			// reset our timeouts on start
 			_jumpTimeoutDelta = JumpTimeout;
 			_fallTimeoutDelta = FallTimeout;
@@ -143,8 +144,6 @@ namespace Player
 		{
 			if (_input.look.sqrMagnitude >= 0.01f) // if there is an input
 			{
-				//Don't multiply mouse input by Time.deltaTime
-				// float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
 				float deltaTimeMultiplier = 1.0f;
 			
 				_cinemachineTargetPitch += _input.look.y * RotationSpeed * deltaTimeMultiplier;
@@ -257,7 +256,7 @@ namespace Player
 				_verticalVelocity += Gravity * Time.deltaTime;
 			}
 		}
-
+		
 		private void OnDrawGizmosSelected()
 		{
 			Color transparentGreen = new Color(0.0f, 1.0f, 0.0f, 0.35f);

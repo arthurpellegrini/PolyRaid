@@ -8,6 +8,7 @@ public class GameJoinSessionEvent : SDD.Events.Event { }
 public class GameResumeEvent : SDD.Events.Event { }
 public class GamePausedEvent : SDD.Events.Event { }
 public class GameOverEvent : SDD.Events.Event { }
+public class GameChangeMapEvent : SDD.Events.Event { }
 public class GameErrorEvent : SDD.Events.Event
 {
 	public string eErrorTitle { get; set; }

@@ -13,6 +13,7 @@ public abstract class SimpleGameStateObserver : NetworkBehaviour,IEventHandler {
 		EventManager.Instance.AddListener<GamePausedEvent>(GamePaused);
 		EventManager.Instance.AddListener<GameOverEvent>(GameOver);
 		EventManager.Instance.AddListener<GameErrorEvent>(GameError);
+		EventManager.Instance.AddListener<GameChangeMapEvent>(GameChangeMap);
 		EventManager.Instance.AddListener<GameStatisticsChangedEvent>(GameStatisticsChanged);
 		EventManager.Instance.AddListener<SessionStatisticsChangedEvent>(SessionStatisticsChanged);
 		EventManager.Instance.AddListener<PlayerStatisticsChangedEvent>(PlayerStatisticsChanged);
@@ -27,6 +28,7 @@ public abstract class SimpleGameStateObserver : NetworkBehaviour,IEventHandler {
 		EventManager.Instance.RemoveListener<GameResumeEvent>(GameResume);
 		EventManager.Instance.RemoveListener<GamePausedEvent>(GamePaused);
 		EventManager.Instance.RemoveListener<GameOverEvent>(GameOver);
+		EventManager.Instance.RemoveListener<GameChangeMapEvent>(GameChangeMap);
 		EventManager.Instance.RemoveListener<GameErrorEvent>(GameError);
 		EventManager.Instance.RemoveListener<GameStatisticsChangedEvent>(GameStatisticsChanged);
 		EventManager.Instance.RemoveListener<SessionStatisticsChangedEvent>(SessionStatisticsChanged);
@@ -43,6 +45,7 @@ public abstract class SimpleGameStateObserver : NetworkBehaviour,IEventHandler {
 	protected virtual void GameResume(GameResumeEvent e) { }
 	protected virtual void GamePaused(GamePausedEvent e) { }
 	protected virtual void GameOver(GameOverEvent e) { }
+	protected virtual void GameChangeMap(GameChangeMapEvent e) { }
 	protected virtual void GameError(GameErrorEvent e) { }
 	protected virtual void GameStatisticsChanged(GameStatisticsChangedEvent e) { }
 	protected virtual void SessionStatisticsChanged(SessionStatisticsChangedEvent e) { }
