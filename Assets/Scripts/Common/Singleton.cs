@@ -1,26 +1,19 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using Unity.Netcode;
 using UnityEngine;
 
-public abstract class Singleton<T> : MonoBehaviour where T:Component {
+public abstract class Singleton<T> : NetworkBehaviour where T:Component {
 
-	static T _instance;
-	public static T Instance
-	{
-		get { return _instance; }
-	}
+	private static T _instance;
+	public static T Instance => _instance;
 
 	[Header("Singleton")]
-	[SerializeField]
-	private bool m_DoNotDestroyGameObjectOnLoad;
+	[SerializeField] private bool m_DoNotDestroyGameObjectOnLoad;
 
 	protected virtual void Awake()
 	{
-		if (_instance != null)
-			Destroy(gameObject);
+		if (_instance != null) Destroy(gameObject);
 		else _instance = this as T;
 
-		if (m_DoNotDestroyGameObjectOnLoad)
-			DontDestroyOnLoad(gameObject);
+		if (m_DoNotDestroyGameObjectOnLoad) DontDestroyOnLoad(gameObject);
 	}
 }

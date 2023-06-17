@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 
 public class CustomTimer : MonoBehaviour {
@@ -12,7 +11,6 @@ public class CustomTimer : MonoBehaviour {
 		dicoCustomTimers.TryGetValue(name, out customTimer);
 		return customTimer;
 	}
-	//
 
 	public bool IsRunning{get;private set;}
 
@@ -22,38 +20,18 @@ public class CustomTimer : MonoBehaviour {
 
 	public float TimeScale 
 	{
-		get{
-			return m_TimeScale;
-		}
-		set{
-			m_TimeScale = value;
-		}
+		get => m_TimeScale;
+		set => m_TimeScale = value;
 	}
-	public float DeltaTime
-	{
-		get{
+	public float DeltaTime => IsRunning ? UnityEngine.Time.deltaTime* m_TimeScale : 0;
 
-			return IsRunning ? UnityEngine.Time.deltaTime* m_TimeScale : 0;
-		}
-	}
-
-	public float FixedDeltaTime
-	{
-		get{
-			
-			return IsRunning ? UnityEngine.Time.fixedDeltaTime* m_TimeScale : 0;
-		}
-	}
+	public float FixedDeltaTime => IsRunning ? UnityEngine.Time.fixedDeltaTime* m_TimeScale : 0;
 
 
 	public float Time
 	{
-		get{
-			return m_Time;
-		}
-		private set{
-			m_Time = value;
-		}
+		get => m_Time;
+		private set => m_Time = value;
 	}
 
 	public void StopTimer()
@@ -99,12 +77,12 @@ public class CustomTimer : MonoBehaviour {
 			}
 		}
 	}
-	// Use this for initialization
+
+	
 	void Start () {
 		Reset(false);
 	}
 	
-	// Update is called once per frame
 	void Update () {
 		Time+=DeltaTime;
 	}

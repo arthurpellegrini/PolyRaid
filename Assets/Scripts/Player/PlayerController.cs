@@ -1,4 +1,7 @@
-﻿using InputSystem;
+﻿using Cinemachine;
+using InputSystem;
+using SDD.Events;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -6,7 +9,7 @@ namespace Player
 {
 	[RequireComponent(typeof(CharacterController))]
 	[RequireComponent(typeof(PlayerInput))]
-	public class PlayerController : MonoBehaviour
+	public class PlayerController : NetworkBehaviour
 	{
 		[Header("Player")]
 		[Tooltip("Move speed of the character in m/s")]
@@ -43,6 +46,8 @@ namespace Player
 		[Header("Cinemachine")]
 		[Tooltip("The follow target set in the Cinemachine Virtual Camera that the camera will follow")]
 		public GameObject CinemachineCameraTarget;
+		[Tooltip("The follow target set in the Cinemachine Virtual Camera that the camera will follow")]
+		public CinemachineVirtualCamera CinemachineVirtualCamera;
 		[Tooltip("How far in degrees can you move the camera up")]
 		public float TopClamp = 90.0f;
 		[Tooltip("How far in degrees can you move the camera down")]
@@ -68,13 +73,19 @@ namespace Player
 		[SerializeField] public GameObject CharacterRig;
 		private Animator _animator;
 
-		private PlayerInput _playerInput;
+		// private PlayerInput _playerInput;
 		private CharacterController _controller;
 		private PlayerInputController _input;
 		private GameObject _mainCamera;
 
-		private bool IsCurrentDeviceMouse => _playerInput.currentControlScheme == "KeyboardMouse";
-
+		public override void OnNetworkSpawn()
+		{
+			//If this is not the owner, turn of player inputs
+			if (!IsOwner) gameObject.GetComponent<PlayerInput>().enabled = false;
+			
+			CinemachineVirtualCamera.Priority = IsOwner ? 10 : 0;
+		}
+		
 		private void Awake()
 		{
 			// get a reference to our main camera
@@ -87,11 +98,18 @@ namespace Player
 		private void Start()
 		{
 			_animator = CharacterRig.GetComponent<Animator>();
-
 			_controller = GetComponent<CharacterController>();
 			_input = GetComponent<PlayerInputController>();
-			_playerInput = GetComponent<PlayerInput>();
 
+			if (IsClient && IsOwner)
+			{
+				Transform newtransform = LevelManager.Instance.GetRandomSpawn();
+				transform.position = newtransform.position;
+				transform.rotation = newtransform.rotation;
+				_mainCamera.transform.position = newtransform.position;
+				_mainCamera.transform.rotation = newtransform.rotation;
+			}
+			
 			// reset our timeouts on start
 			_jumpTimeoutDelta = JumpTimeout;
 			_fallTimeoutDelta = FallTimeout;
@@ -103,6 +121,7 @@ namespace Player
 
 		private void Update()
 		{
+			if (!IsOwner) return; //If this is not the owner, skip Update()
 			JumpAndGravity();
 			GroundedCheck();
 			Move();
@@ -110,6 +129,7 @@ namespace Player
 
 		private void LateUpdate()
 		{
+			if (!IsOwner) return; //If this is not the owner, skip LateUpdate()
 			CameraRotation();
 		}
 
@@ -124,8 +144,7 @@ namespace Player
 		{
 			if (_input.look.sqrMagnitude >= 0.01f) // if there is an input
 			{
-				//Don't multiply mouse input by Time.deltaTime
-				float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
+				float deltaTimeMultiplier = 1.0f;
 			
 				_cinemachineTargetPitch += _input.look.y * RotationSpeed * deltaTimeMultiplier;
 				_rotationVelocity = _input.look.x * RotationSpeed * deltaTimeMultiplier;
@@ -237,14 +256,7 @@ namespace Player
 				_verticalVelocity += Gravity * Time.deltaTime;
 			}
 		}
-
-		// private static float ClampAngle(float lfAngle, float lfMin, float lfMax)
-		// {
-		// 	if (lfAngle < -360f) lfAngle += 360f;
-		// 	if (lfAngle > 360f) lfAngle -= 360f;
-		// 	return Mathf.Clamp(lfAngle, lfMin, lfMax);
-		// }
-
+		
 		private void OnDrawGizmosSelected()
 		{
 			Color transparentGreen = new Color(0.0f, 1.0f, 0.0f, 0.35f);

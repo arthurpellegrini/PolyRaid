@@ -1,7 +1,5 @@
 ﻿using System;
 using UnityEngine;
-using System.Collections;
-
 
 namespace Tools.MathTools
 {
@@ -175,7 +173,6 @@ namespace Tools.MathTools
 
         public static Cylindrical CartesianToCylindric(Vector3 position)
         {
-            //
             float rho = Mathf.Sqrt(position.x * position.x + position.z * position.z);
             float theta = 0;
 

@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-public static class Constants {
+﻿public static class Constants {
 
 	//Musics
 	public static int MENU_MUSIC = 0;
