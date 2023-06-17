@@ -55,7 +55,7 @@ public class MenuManager : Manager<MenuManager>
     {
         if (Keyboard.current.escapeKey.wasPressedThisFrame)
         {
-            EscapeButtonHasBeenClicked();
+            if (GameManager.Instance.IsPlaying) EscapeButtonHasBeenClicked();
         }
     }
     #endregion
@@ -100,7 +100,7 @@ public class MenuManager : Manager<MenuManager>
     private void CheckInputFieldsToSetButtonsInteractable()
     {
         int mapId = GetInputMapId();
-        if (mapId > 0 && mapId <= 3) 
+        if (mapId > 0 && mapId <= 4) 
         {
             _tmpCreateButton.interactable = true;
             _tmpJoinButton.interactable = GetInputSessionId().Length == 6; // Solve Length Issues

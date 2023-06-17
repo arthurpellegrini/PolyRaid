@@ -6,10 +6,9 @@ using Random = UnityEngine.Random;
 
 public class LevelManager : Manager<LevelManager>
 {
-	// private MapState _mapState = MapState.Test;
-	// public int GetMapState => (int)_mapState;
+	// Synchronize Server and Client on the MapId (Not Working because require that the Client
+	// Spawn before the variable is sync)
 	public NetworkVariable<int> _currentMapId = new NetworkVariable<int>(0);
-	// private int _currentMapId;
 	
 	#region Manager implementation
 	protected override IEnumerator InitCoroutine()
@@ -18,33 +17,6 @@ public class LevelManager : Manager<LevelManager>
 		yield break;
 	}
 	#endregion
-
-	// public override void OnNetworkSpawn()
-	// {
-	// 	if (IsServer)
-	// 	{
-	// 		// _currentMapId.Value = Random.Range(1, allMapsPrefab.Count);
-	// 		_currentMapId.Value = 2;
-	// 	}
-	// 	else
-	// 	{
-	// 		if (_currentMapId.Value != 2)
-	// 		{
-	// 			Debug.LogWarning($"NetworkVariable was {_currentMapId.Value} upon being spawned" +
-	// 			                 $" when it should have been 2");
-	// 		}
-	// 		else
-	// 		{
-	// 			Debug.Log($"NetworkVariable is {_currentMapId.Value} when spawned.");
-	// 		}
-	// 		_currentMapId.OnValueChanged += OnSomeValueChanged;
-	// 	}
-	// }
-	//
-	// private void OnSomeValueChanged(int previous, int current)
-	// {
-	// 	Debug.Log($"Detected NetworkVariable Change: Previous: {previous} | Current: {current}");
-	// }
 
 	#region GameObjects
 	[SerializeField] private Map _testPrefab;
@@ -79,7 +51,7 @@ public class LevelManager : Manager<LevelManager>
 	{
 		RandomizeSpawnPoint();
 		Transform spawn = _spawnTransforms[_randomSpawnNumber % _spawnTransforms.Count];
-		Debug.Log(_randomSpawnNumber.ToString() + ";" + spawn);
+		// Debug.Log(_randomSpawnNumber.ToString() + ";" + spawn + ";" + spawn.position);
 		return spawn;
 	}
 
@@ -93,7 +65,7 @@ public class LevelManager : Manager<LevelManager>
 			_currentMapNo.Spawn();
 		}
 		_spawnTransforms = allMapsPrefab[_currentMapId.Value].SpawnPoints;
-		Debug.Log("MapID:" + _currentMapId.Value);
+		// Debug.Log("MapID:" + _currentMapId.Value);
 	}
 	#endregion
 

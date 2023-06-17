@@ -709,7 +709,7 @@ PrefabInstance:
     - target: {fileID: 589796715419315179, guid: e32eb5e3156a98c438abe01e19a89049,
         type: 3}
       propertyPath: m_text
-      value: MapID [0..3]
+      value: MapID [0..4]
       objectReference: {fileID: 0}
     - target: {fileID: 589796715419315179, guid: e32eb5e3156a98c438abe01e19a89049,
         type: 3}
