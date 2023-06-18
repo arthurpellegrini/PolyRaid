@@ -113,7 +113,6 @@ GameObject:
   m_Component:
   - component: {fileID: 3744710490433315897}
   - component: {fileID: 4382821864758291353}
-  - component: {fileID: 157577729572094232}
   - component: {fileID: 3744710490433315902}
   - component: {fileID: 3744710490433315903}
   - component: {fileID: 3744710490433315896}
@@ -162,18 +161,6 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 1, z: 0}
---- !u!114 &157577729572094232
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3744710490433315899}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dfc66fa61e20822489ee7bb73dc63c80, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &3744710490433315902
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -186,24 +173,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d52675c820891504a830cd85588a70a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MoveSpeed: 4
-  SprintSpeed: 6
-  RotationSpeed: 4
-  SpeedChangeRate: 5
-  JumpHeight: 1
-  Gravity: -20
-  JumpTimeout: 0.1
-  FallTimeout: 0.15
-  Grounded: 1
-  GroundedOffset: -0.14
-  GroundedRadius: 0.25
-  GroundLayers:
+  _moveSpeed: 4
+  _sprintSpeed: 6
+  _rotationSpeed: 1
+  _speedChangeRate: 10
+  _jumpHeight: 1.2
+  _gravity: -15
+  _jumpTimeout: 0.1
+  _fallTimeout: 0.15
+  _grounded: 1
+  _groundedOffset: -0.14
+  _groundedRadius: 0.5
+  _groundLayers:
     serializedVersion: 2
     m_Bits: 65
-  CinemachineCameraTarget: {fileID: 3744710491089042824}
-  CinemachineVirtualCamera: {fileID: 2958135986397643317}
-  TopClamp: 90
-  BottomClamp: -90
+  _cinemachineCameraTarget: {fileID: 3744710491089042824}
+  _cinemachineVirtualCamera: {fileID: 2958135986397643317}
+  _sensitivity: {x: 1, y: 1}
+  _interpolationSpeed: 25
+  yClamp: {x: -60, y: 60}
   CharacterRig: {fileID: 4700353710519980668}
 --- !u!114 &3744710490433315903
 MonoBehaviour:
