@@ -14,9 +14,12 @@ public abstract class SimpleGameStateObserver : NetworkBehaviour,IEventHandler {
 		EventManager.Instance.AddListener<GameOverEvent>(GameOver);
 		EventManager.Instance.AddListener<GameErrorEvent>(GameError);
 		EventManager.Instance.AddListener<GameChangeMapEvent>(GameChangeMap);
-		EventManager.Instance.AddListener<GameStatisticsChangedEvent>(GameStatisticsChanged);
-		EventManager.Instance.AddListener<SessionStatisticsChangedEvent>(SessionStatisticsChanged);
-		EventManager.Instance.AddListener<PlayerStatisticsChangedEvent>(PlayerStatisticsChanged);
+		EventManager.Instance.AddListener<GameTimerChangedEvent>(GameTimerChanged);
+		EventManager.Instance.AddListener<PlayerHealthChangedEvent>(PlayerHealthChanged);
+		EventManager.Instance.AddListener<PlayerScoreChangedEvent>(PlayerScoreChanged);
+		EventManager.Instance.AddListener<SessionIDChangedEvent>(SessionIDChanged);
+		EventManager.Instance.AddListener<FpsChangedEvent>(FpsChanged);
+		EventManager.Instance.AddListener<PlayerMagChangedEvent>(PlayerMagChanged);
 	}
 
 	public virtual void UnsubscribeEvents()
@@ -30,9 +33,12 @@ public abstract class SimpleGameStateObserver : NetworkBehaviour,IEventHandler {
 		EventManager.Instance.RemoveListener<GameOverEvent>(GameOver);
 		EventManager.Instance.RemoveListener<GameChangeMapEvent>(GameChangeMap);
 		EventManager.Instance.RemoveListener<GameErrorEvent>(GameError);
-		EventManager.Instance.RemoveListener<GameStatisticsChangedEvent>(GameStatisticsChanged);
-		EventManager.Instance.RemoveListener<SessionStatisticsChangedEvent>(SessionStatisticsChanged);
-		EventManager.Instance.RemoveListener<PlayerStatisticsChangedEvent>(PlayerStatisticsChanged);
+		EventManager.Instance.RemoveListener<GameTimerChangedEvent>(GameTimerChanged);
+		EventManager.Instance.RemoveListener<PlayerHealthChangedEvent>(PlayerHealthChanged);
+		EventManager.Instance.RemoveListener<PlayerScoreChangedEvent>(PlayerScoreChanged);
+		EventManager.Instance.RemoveListener<SessionIDChangedEvent>(SessionIDChanged);
+		EventManager.Instance.RemoveListener<FpsChangedEvent>(FpsChanged);
+		EventManager.Instance.RemoveListener<PlayerMagChangedEvent>(PlayerMagChanged);
 	}
 
 	protected virtual void Awake() { SubscribeEvents(); }
@@ -47,7 +53,10 @@ public abstract class SimpleGameStateObserver : NetworkBehaviour,IEventHandler {
 	protected virtual void GameOver(GameOverEvent e) { }
 	protected virtual void GameChangeMap(GameChangeMapEvent e) { }
 	protected virtual void GameError(GameErrorEvent e) { }
-	protected virtual void GameStatisticsChanged(GameStatisticsChangedEvent e) { }
-	protected virtual void SessionStatisticsChanged(SessionStatisticsChangedEvent e) { }
-	protected virtual void PlayerStatisticsChanged(PlayerStatisticsChangedEvent e) { }
+	protected virtual void GameTimerChanged(GameTimerChangedEvent e) { }
+	protected virtual void PlayerHealthChanged(PlayerHealthChangedEvent e) { }
+	protected virtual void PlayerScoreChanged(PlayerScoreChangedEvent e) { }
+	protected virtual void SessionIDChanged(SessionIDChangedEvent e) { }
+	protected virtual void FpsChanged(FpsChangedEvent e) { }
+	protected virtual void PlayerMagChanged(PlayerMagChangedEvent e) { }
 }

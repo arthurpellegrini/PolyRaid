@@ -41,12 +41,12 @@ public class GameManager : Manager<GameManager>
     {
         if (IsPlaying)
         {
-            SetSessionInfo();
+            SetFrameRate();
             // SetTimer(_timer - Time.deltaTime);
         }
     }
     #endregion
-    
+
     #region Events' subscription
 
     public override void SubscribeEvents()
@@ -76,33 +76,24 @@ public class GameManager : Manager<GameManager>
     #endregion
 
     #region GameStatistics
-    private int SetFrameRate()
+    private void SetFrameRate()
     {
         _frameDeltaTimeArray[_lastFrameIndex] = Time.deltaTime;
         _lastFrameIndex = (_lastFrameIndex + 1) % _frameDeltaTimeArray.Length;
         float total = 0f;
+        
         foreach (float deltaTime in _frameDeltaTimeArray) total += deltaTime;
-        return Mathf.RoundToInt(_frameDeltaTimeArray.Length / total);
+        
+        EventManager.Instance.Raise(
+            new FpsChangedEvent() { eFps = Mathf.RoundToInt(_frameDeltaTimeArray.Length / total) });
     }
     
-    private void SetSessionInfo()
+    public void SetSessionInfo()
     {
         if (IsHost) 
-        {
-            EventManager.Instance.Raise(new SessionStatisticsChangedEvent()
-            {
-                eSessionID = _relayHostData.JoinCode, 
-                eFps = SetFrameRate()
-            });
-        }
-        else if (IsClient)
-        {
-            EventManager.Instance.Raise(new SessionStatisticsChangedEvent()
-            {
-                eSessionID = _relayJoinData.JoinCode, 
-                eFps = SetFrameRate()
-            });
-        }
+            EventManager.Instance.Raise(new SessionIDChangedEvent() { eSessionID = _relayHostData.JoinCode });
+        else if (IsClient) 
+            EventManager.Instance.Raise(new SessionIDChangedEvent() { eSessionID = _relayJoinData.JoinCode });
     }
 
     // private void SetTimer(float newTimer)
@@ -204,12 +195,4 @@ public class GameManager : Manager<GameManager>
     private void QuitButtonClicked(QuitButtonClickedEvent e) { Application.Quit(); }
     #endregion
     
-    // void EnemyHasBeenHit(EnemyHasBeenHitEvent e)
-    // {
-        // IScore score = e.eEnemyGO.GetComponent<IScore>();
-        // if (score != null)
-        // {
-        //     SetScore(m_Score + score.Score);
-        // }
-    // }
 }

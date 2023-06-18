@@ -31,8 +31,8 @@ public class Weapon : MonoBehaviour
         RaycastHit hit;
         if (Physics.Raycast(cam.position, cam.forward, out hit, range))
         {
-            Debug.Log(hit.collider);
-            // if (hit.collider.GetComponent<Damageable>() != null)
+            if (hit.collider.GetComponent<PlayerNetworkHealth>() != null) 
+                Debug.Log("Hit Player !!" + hit.collider);
             // {
             //     hit.collider.GetComponent<Damageable>().TakeDamage(damage, hit.point, hit.normal);
             // }

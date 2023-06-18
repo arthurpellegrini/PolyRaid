@@ -15,27 +15,29 @@ public class GameErrorEvent : SDD.Events.Event
 	public string eErrorDescription { get; set; }
 }
 
-public class GameStatisticsChangedEvent : SDD.Events.Event
+public class GameTimerChangedEvent : SDD.Events.Event
 {
-	// public int eKill { get; set; }
-	// public int eDead { get; set; }
-	public int eScore { get; set; }
 	public float eTimer { get; set; }
+}
+public class PlayerHealthChangedEvent : SDD.Events.Event
+{
 	public int eHealth { get; set; }
 }
-public class SessionStatisticsChangedEvent : SDD.Events.Event
+public class PlayerScoreChangedEvent : SDD.Events.Event
+{
+	public int eScore { get; set; }
+}
+public class SessionIDChangedEvent : SDD.Events.Event
 {
 	public string eSessionID { get; set; }
+}
+public class FpsChangedEvent : SDD.Events.Event
+{
 	public int eFps { get; set; }
 }
-
-public class PlayerStatisticsChangedEvent : SDD.Events.Event
+public class PlayerMagChangedEvent : SDD.Events.Event
 {
-	public bool eIsCrouching { get; set; }
-	public int eWeaponID { get; set; }
 	public int eMag { get; set; }
-	public int eMunition { get; set; }
-	public int eGrenade { get; set; }
 }
 #endregion
 

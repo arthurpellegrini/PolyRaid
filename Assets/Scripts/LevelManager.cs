@@ -34,84 +34,46 @@ public class LevelManager : Manager<LevelManager>
 	private void RegisterMaps()
 	{
 		allMapsPrefab = new List<Map>
-		{
-			_testPrefab,
+		{ 
+			_testPrefab, 
 			_esieeItPrefab,
 			_yassinePrefab,
 			_clementPrefab
 		};
 	}
-
-	public void RandomizeSpawnPoint()
+	private void InitHostMap()
 	{
-		_randomSpawnNumber = Random.Range(0, 65536);
+		_currentMap = Instantiate(allMapsPrefab[_currentMapId.Value], Vector3.zero, Quaternion.identity);
+		_currentMapNo = _currentMap.GetComponent<NetworkObject>();
+		_currentMapNo.Spawn();
 	}
 	
+	public void RandomizeSpawnPoints() { _randomSpawnNumber = Random.Range(0, 65536); }
 	public Transform GetRandomSpawn()
 	{
-		RandomizeSpawnPoint();
-		Transform spawn = _spawnTransforms[_randomSpawnNumber % _spawnTransforms.Count];
-		// Debug.Log(_randomSpawnNumber.ToString() + ";" + spawn + ";" + spawn.position);
-		return spawn;
+		RandomizeSpawnPoints();
+		return _spawnTransforms[_randomSpawnNumber % _spawnTransforms.Count];
 	}
-
-	private void InitMap()
-	{
-		_currentMapId.Value = MenuManager.Instance.GetInputMapId()-1; // MapId will be in [1..3] but the list start at 0
-		if (IsHost)
-		{
-			_currentMap = Instantiate(allMapsPrefab[_currentMapId.Value], Vector3.zero, Quaternion.identity);
-			_currentMapNo = _currentMap.GetComponent<NetworkObject>();
-			_currentMapNo.Spawn();
-		}
-		_spawnTransforms = allMapsPrefab[_currentMapId.Value].SpawnPoints;
-		// Debug.Log("MapID:" + _currentMapId.Value);
-	}
+	public void UpdateSpawnTransforms() { _spawnTransforms = allMapsPrefab[_currentMapId.Value].SpawnPoints; }
 	#endregion
-
-	protected override void GameMainMenu(GameMainMenuEvent e)
-	{
-
-	}
-	
-	protected override void GameCredits(GameCreditsEvent e)
-	{
-
-	}
 
 	protected override void GameCreateSession(GameCreateSessionEvent e)
 	{
-		InitMap();
+		_currentMapId.Value = MenuManager.Instance.GetInputMapId()-1; // MapId will be in [1..4] but the list start at 0
+		if (IsHost) InitHostMap();
+		UpdateSpawnTransforms();
 	}
 
 	protected override void GameJoinSession(GameJoinSessionEvent e)
 	{
-		InitMap();
+		_currentMapId.Value = MenuManager.Instance.GetInputMapId()-1; // MapId will be in [1..4] but the list start at 0
+		UpdateSpawnTransforms();
 	}
 
-	protected override void GameResume(GameResumeEvent e)
-	{
-
-	}
-
-	protected override void GamePaused(GamePausedEvent e)
-	{
-
-	}
-
-	protected override void GameOver(GameOverEvent e)
-	{
-
-	}
-
+	// TODO : Think about a better method to change dynamicly the mapId at the end of a party for exemple
 	// protected override void GameChangeMap(GameChangeMapEvent e)
 	// {
 	// 	_currentMapId.Value++;
 	// 	InitMap();
 	// }
-	
-	protected override void GameStatisticsChanged(GameStatisticsChangedEvent e)
-	{
-		
-	}
 }

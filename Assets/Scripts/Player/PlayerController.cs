@@ -1,6 +1,5 @@
 ﻿using Cinemachine;
 using InputSystem;
-using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -82,8 +81,6 @@ namespace Player
 
         [SerializeField] public GameObject CharacterRig;
         private Animator _animator;
-
-        // private PlayerInput _playerInput;
         private CharacterController _controller;
         private PlayerInputController _input;
         private GameObject _mainCamera;
@@ -95,8 +92,8 @@ namespace Player
         {
             //If this is not the owner, turn of player inputs
             if (!IsOwner) gameObject.GetComponent<PlayerInput>().enabled = false;
-
             _cinemachineVirtualCamera.Priority = IsOwner ? 10 : 0;
+            GameManager.Instance.SetSessionInfo();
         }
 
         private void Awake()
