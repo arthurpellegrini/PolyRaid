@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Threading.Tasks;
 using SDD.Events;
 using Unity.Netcode;
 using UnityEngine;
@@ -12,13 +11,11 @@ public class GameManager : Manager<GameManager>
 
     private RelayHostData _relayHostData;
     private RelayJoinData _relayJoinData;
-    // private UnityTransport _transport;
     
-    // [SerializeField] private float _GameOverDuration = 60;
+    [SerializeField] private float _GameOverDuration = 60;
+    private NetworkVariable<float> _networkTimer = new NetworkVariable<float>();
     private float _timer;
-    private int _score;
-    private int _health;
-    
+
     private string _sessionID;
     private int _lastFrameIndex;
     private float[] _frameDeltaTimeArray = new float[30];
@@ -41,9 +38,14 @@ public class GameManager : Manager<GameManager>
     {
         if (IsPlaying)
         {
+            SetSessionInfo();
             SetFrameRate();
-            // SetTimer(_timer - Time.deltaTime);
+            // if (_timer == 0) GameOver();
         }
+
+        _timer = _networkTimer.Value; // Synchronisation des clients 
+        if (IsHost) _networkTimer.Value = Mathf.Max(_networkTimer.Value - Time.deltaTime, 0); // Maj Hôte
+        EventManager.Instance.Raise(new GameTimerChangedEvent() { eTimer = _timer });
     }
     #endregion
 
@@ -95,14 +97,6 @@ public class GameManager : Manager<GameManager>
         else if (IsClient) 
             EventManager.Instance.Raise(new SessionIDChangedEvent() { eSessionID = _relayJoinData.JoinCode });
     }
-
-    // private void SetTimer(float newTimer)
-    // {
-    //     _timer = Mathf.Max(newTimer, 0);
-    //     EventManager.Instance.Raise(new GameStatisticsChangedEvent() { eTimer = newTimer });
-    //
-    //     if (_timer == 0) GameOver();
-    // }
     #endregion
 
     #region GameManager Functions
@@ -127,14 +121,13 @@ public class GameManager : Manager<GameManager>
         try
         {
             if (MusicLoopsManager.Instance) MusicLoopsManager.Instance.PlayMusic(Constants.GAMEPLAY_MUSIC);
+            _timer = _GameOverDuration;
+            _networkTimer.Value = _timer;
             _gameState = GameState.Playing;
             SetTimeScale(1);
-
-            // SetTimer(_GameOverDuration); // TODO : Test Timer HUD
-
+            
             _relayHostData = await RelayManager.Instance.SetupRelay();
             NetworkManager.Singleton.StartHost();
-            SetSessionInfo();
             EventManager.Instance.Raise(new GameCreateSessionEvent());
         } 
         catch (Exception e)
@@ -149,12 +142,12 @@ public class GameManager : Manager<GameManager>
     {
         try {
             if (MusicLoopsManager.Instance) MusicLoopsManager.Instance.PlayMusic(Constants.GAMEPLAY_MUSIC);
+            _timer = _GameOverDuration;
             _gameState = GameState.Playing;
             SetTimeScale(1);
-
+            
             _relayJoinData = await RelayManager.Instance.JoinRelay(MenuManager.Instance.GetInputSessionId());
             NetworkManager.Singleton.StartClient();
-            SetSessionInfo();
             EventManager.Instance.Raise(new GameJoinSessionEvent());
         } 
         catch (Exception e)

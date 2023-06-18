@@ -1,27 +1,44 @@
-using System.Collections;
-using System.Collections.Generic;
+using System.Net;
 using SDD.Events;
 using Unity.Netcode;
-using UnityEngine;
 
 public class PlayerNetworkHealth : NetworkBehaviour
 {
-    private NetworkVariable<int> HealthPoint = new NetworkVariable<int>();
-    public NetworkVariable<int> GetHealthPoint() => HealthPoint;
+    private int HealthPoint;
+    public int GetHealthPoint() => HealthPoint;
 
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-        HealthPoint.Value = 100;
+        HealthPoint = 100;
     }
-    
-    private void OnEnable() { HealthPoint.OnValueChanged += HealthChanged; }
-    private void OnDisable() { HealthPoint.OnValueChanged -= HealthChanged; }
 
-    private void HealthChanged(int previousValue, int newValue)
+    [ServerRpc(RequireOwnership = false)]
+    public void UpdateHealthServerRpc(int damage, ulong clientId)
     {
-        EventManager.Instance.Raise(new PlayerHealthChangedEvent() { eHealth = HealthPoint.Value });
+        var clientWithDamaged = NetworkManager.Singleton.ConnectedClients[clientId]
+            .PlayerObject.GetComponent<PlayerNetworkHealth>();
+
+        if (clientWithDamaged != null && clientWithDamaged.HealthPoint > 0)
+        {
+            clientWithDamaged.HealthPoint -= damage;
+        }
+
+        // execute method on a client getting punch
+        NotifyHealthChangedClientRpc(damage, new ClientRpcParams
+        {
+            Send = new ClientRpcSendParams
+            {
+                TargetClientIds = new ulong[] { clientId }
+            }
+        });
     }
 
-    public void TakeDamage(int damage) { HealthPoint.Value -= damage; }
+    [ClientRpc]
+    public void NotifyHealthChangedClientRpc(int damage, ClientRpcParams clientRpcParams = default)
+    {
+        if (IsOwner) return;
+        HealthPoint -= damage;
+        EventManager.Instance.Raise(new PlayerHealthChangedEvent() { eHealth = HealthPoint });
+    }
 }

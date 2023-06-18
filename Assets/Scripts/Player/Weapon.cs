@@ -1,7 +1,7 @@
 using System.Collections;
 using SDD.Events;
+using Unity.Netcode;
 using UnityEngine;
-using Event = SDD.Events.Event;
 
 public class Weapon : MonoBehaviour
 {
@@ -36,17 +36,18 @@ public class Weapon : MonoBehaviour
             if (Physics.Raycast(cam.position, cam.forward, out hit, range))
             {
                 Debug.Log(currentAmmo + ", " + hit.collider);
-                if (hit.collider.GetComponent<PlayerNetworkHealth>() != null)
+                var playerNetworkHealth = hit.collider.GetComponent<PlayerNetworkHealth>();
+                if ( playerNetworkHealth!= null)
                 {
                     Debug.Log("Hit Player !!" + hit.collider);
                     score += 100;
                     EventManager.Instance.Raise(new PlayerScoreChangedEvent() { eScore = score });
-                    hit.collider.GetComponent<PlayerNetworkHealth>().TakeDamage(damage);
+                    var playerHit = hit.transform.GetComponent<NetworkObject>();
+                    if (playerHit != null)
+                    { 
+                        playerNetworkHealth.UpdateHealthServerRpc(damage, playerHit.OwnerClientId);
+                    }
                 }
-
-                // {
-                //     hit.collider.GetComponent<Damageable>().TakeDamage(damage, hit.point, hit.normal);
-                // }
             }
         }
         else
