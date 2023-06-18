@@ -6,6 +6,7 @@ public class Weapon : MonoBehaviour
     private Transform cam;
 
     [SerializeField] private bool rapidFire = false;
+    private bool canReload = true;
     [SerializeField] private float range = 50f;
     [SerializeField] private float damage = 10f;
     [SerializeField] private float fireRate = 5f;
@@ -27,39 +28,47 @@ public class Weapon : MonoBehaviour
 
     public void Shoot()
     {
-        currentAmmo--;
-        RaycastHit hit;
-        if (Physics.Raycast(cam.position, cam.forward, out hit, range))
-        {
-            if (hit.collider.GetComponent<PlayerNetworkHealth>() != null) 
-                Debug.Log("Hit Player !!" + hit.collider);
-            // {
-            //     hit.collider.GetComponent<Damageable>().TakeDamage(damage, hit.point, hit.normal);
-            // }
-        }
-    }
-
-    public IEnumerator RapidFire()
-    {
         if (CanShoot())
         {
-            Shoot();
-            if (rapidFire)
+            currentAmmo--;
+            RaycastHit hit;
+            if (Physics.Raycast(cam.position, cam.forward, out hit, range))
             {
-                while (CanShoot())
-                {
-                    yield return rapidFireWait;
-                    Shoot();
-                }
-                StartCoroutine(Reload());
+                Debug.Log(currentAmmo + ", " + hit.collider);
+                if (hit.collider.GetComponent<PlayerNetworkHealth>() != null) 
+                    Debug.Log("Hit Player !!" + hit.collider);
+                // {
+                //     hit.collider.GetComponent<Damageable>().TakeDamage(damage, hit.point, hit.normal);
+                // }
             }
         }
         else
         {
             StartCoroutine(Reload());
         }
-
     }
+
+    // public IEnumerator RapidFire()
+    // {
+    //     if (CanShoot())
+    //     {
+    //         Shoot();
+    //         if (rapidFire)
+    //         {
+    //             while (CanShoot())
+    //             {
+    //                 yield return rapidFireWait;
+    //                 Shoot();
+    //             }
+    //             StartCoroutine(Reload());
+    //         }
+    //     }
+    //     else
+    //     {
+    //         StartCoroutine(Reload());
+    //     }
+    //
+    // }
 
     IEnumerator Reload()
     {
@@ -67,11 +76,17 @@ public class Weapon : MonoBehaviour
         {
             yield return null;
         }
+        else if (canReload)
+        {
+            canReload = false;
+            print("Reloading...");
+            yield return reloadWait;
+            currentAmmo = maxAmmo;
+            print("Finished reloading");
+            canReload = true;
+        }
+        else yield return null;
 
-        print("Reloading...");
-        yield return reloadWait;
-        currentAmmo = maxAmmo;
-        print("Finished reloading");
     }
 
     bool CanShoot()

@@ -44,7 +44,7 @@ namespace Player
         private float _groundedOffset = -0.14f;
         [Tooltip("The radius of the grounded check. Should match the radius of the CharacterController")]
         [SerializeField]
-        private float _groundedRadius = 0.5f;
+        private float _groundedRadius = 0.25f;
         [Tooltip("What layers the character uses as ground")] 
         [SerializeField]
         private LayerMask _groundLayers;
@@ -83,6 +83,7 @@ namespace Player
         private Animator _animator;
         private CharacterController _controller;
         private PlayerInputController _input;
+        private PlayerInput _playerInput;
         private GameObject _mainCamera;
 
         [SerializeField] private Weapon _weapon;
@@ -91,9 +92,8 @@ namespace Player
         public override void OnNetworkSpawn()
         {
             //If this is not the owner, turn of player inputs
-            if (!IsOwner) gameObject.GetComponent<PlayerInput>().enabled = false;
+            if (!IsOwner) _playerInput.enabled = false;
             _cinemachineVirtualCamera.Priority = IsOwner ? 10 : 0;
-            GameManager.Instance.SetSessionInfo();
         }
 
         private void Awake()
@@ -103,6 +103,7 @@ namespace Player
             {
                 _mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
             }
+            _playerInput = gameObject.GetComponent<PlayerInput>();
         }
 
         private void Start()
@@ -132,23 +133,21 @@ namespace Player
         private void Update()
         {
             if (!IsOwner) return; //If this is not the owner, skip Update()
-            if (GameManager.Instance.IsPlaying)
+            _playerInput.enabled = GameManager.Instance.IsPlaying;
+            JumpAndGravity();
+            GroundedCheck();
+            Move();
+            if (_input.shoot)
             {
-                JumpAndGravity();
-                GroundedCheck();
-                Move();
-                if (_input.shoot)
-                {
-                    StartFiring();
-                    _input.shoot = false;
-                }
+                _weapon.Shoot();
+                _input.shoot = false;
             }
         }
 
         private void LateUpdate()
         {
             if (!IsOwner) return; //If this is not the owner, skip LateUpdate()
-            if (GameManager.Instance.IsPlaying) CameraRotation();
+            CameraRotation();
         }
 
         private void GroundedCheck()
@@ -290,19 +289,6 @@ namespace Player
             Gizmos.DrawSphere(
                 new Vector3(transform.position.x, transform.position.y - _groundedOffset, transform.position.z),
                 _groundedRadius);
-        }
-
-        private void StartFiring()
-        {
-            fireCoroutine = StartCoroutine(_weapon.RapidFire());
-        }
-
-        private void StopFiring()
-        {
-            if (fireCoroutine != null)
-            {
-                StopCoroutine(fireCoroutine);
-            }
         }
     }
 }

@@ -134,6 +134,7 @@ public class GameManager : Manager<GameManager>
 
             _relayHostData = await RelayManager.Instance.SetupRelay();
             NetworkManager.Singleton.StartHost();
+            SetSessionInfo();
             EventManager.Instance.Raise(new GameCreateSessionEvent());
         } 
         catch (Exception e)
@@ -153,6 +154,7 @@ public class GameManager : Manager<GameManager>
 
             _relayJoinData = await RelayManager.Instance.JoinRelay(MenuManager.Instance.GetInputSessionId());
             NetworkManager.Singleton.StartClient();
+            SetSessionInfo();
             EventManager.Instance.Raise(new GameJoinSessionEvent());
         } 
         catch (Exception e)

@@ -341,37 +341,37 @@ PrefabInstance:
     - target: {fileID: 9005220659476430818, guid: 48ac1234c4cf871408d4298a7802ac34,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.00000016484714
+      value: -0.00000016396908
       objectReference: {fileID: 0}
     - target: {fileID: 9005220659476430818, guid: 48ac1234c4cf871408d4298a7802ac34,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.6551609
+      value: 1.7086037
       objectReference: {fileID: 0}
     - target: {fileID: 9005220659476430818, guid: 48ac1234c4cf871408d4298a7802ac34,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.039776683
+      value: 0.10903144
       objectReference: {fileID: 0}
     - target: {fileID: 9005220659476430818, guid: 48ac1234c4cf871408d4298a7802ac34,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0.9999336
       objectReference: {fileID: 0}
     - target: {fileID: 9005220659476430818, guid: 48ac1234c4cf871408d4298a7802ac34,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0.00000017881389
+      value: -0.011521813
       objectReference: {fileID: 0}
     - target: {fileID: 9005220659476430818, guid: 48ac1234c4cf871408d4298a7802ac34,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.00000025333378
+      value: 0.000000021155751
       objectReference: {fileID: 0}
     - target: {fileID: 9005220659476430818, guid: 48ac1234c4cf871408d4298a7802ac34,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: 4.527435e-10
+      value: 0.00000018974309
       objectReference: {fileID: 0}
     - target: {fileID: 9005220659476430818, guid: 48ac1234c4cf871408d4298a7802ac34,
         type: 3}
@@ -391,12 +391,17 @@ PrefabInstance:
     - target: {fileID: 9005220659476430821, guid: 48ac1234c4cf871408d4298a7802ac34,
         type: 3}
       propertyPath: field of view
-      value: 50
+      value: 90
       objectReference: {fileID: 0}
     - target: {fileID: 9005220659476430821, guid: 48ac1234c4cf871408d4298a7802ac34,
         type: 3}
       propertyPath: m_FocalLength
       value: 20.78461
+      objectReference: {fileID: 0}
+    - target: {fileID: 9005220659476430821, guid: 48ac1234c4cf871408d4298a7802ac34,
+        type: 3}
+      propertyPath: near clip plane
+      value: 0.02
       objectReference: {fileID: 0}
     - target: {fileID: 9005220659476430823, guid: 48ac1234c4cf871408d4298a7802ac34,
         type: 3}
@@ -407,6 +412,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_DefaultBlend.m_Time
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9018249871969862650, guid: 48ac1234c4cf871408d4298a7802ac34,
+        type: 3}
+      propertyPath: m_DefaultBlend.m_Style
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9018249871969862650, guid: 48ac1234c4cf871408d4298a7802ac34,
         type: 3}
