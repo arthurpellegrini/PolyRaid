@@ -1,5 +1,7 @@
 using System.Collections;
+using SDD.Events;
 using UnityEngine;
+using Event = SDD.Events.Event;
 
 public class Weapon : MonoBehaviour
 {
@@ -8,12 +10,12 @@ public class Weapon : MonoBehaviour
     [SerializeField] private bool rapidFire = false;
     private bool canReload = true;
     [SerializeField] private float range = 50f;
-    [SerializeField] private float damage = 10f;
+    [SerializeField] private int damage = 10;
     [SerializeField] private float fireRate = 5f;
     private WaitForSeconds rapidFireWait;
 
     [SerializeField] private int maxAmmo = 30;
-    private int currentAmmo;
+    private int currentAmmo; // TODO: SETTER CURRENT AMMO -> AVEC LEVEE EVENEMENT EN +
     
     [SerializeField] private float reloadTime;
     private WaitForSeconds reloadWait;
@@ -24,6 +26,7 @@ public class Weapon : MonoBehaviour
         rapidFireWait = new WaitForSeconds(1 / fireRate);
         reloadWait = new WaitForSeconds(reloadTime);
         currentAmmo = maxAmmo;
+        EventManager.Instance.Raise(new PlayerMagChangedEvent() { eMag = currentAmmo });
     }
 
     public void Shoot()
@@ -31,12 +34,17 @@ public class Weapon : MonoBehaviour
         if (CanShoot())
         {
             currentAmmo--;
+            EventManager.Instance.Raise(new PlayerMagChangedEvent() { eMag = currentAmmo });
             RaycastHit hit;
             if (Physics.Raycast(cam.position, cam.forward, out hit, range))
             {
                 Debug.Log(currentAmmo + ", " + hit.collider);
-                if (hit.collider.GetComponent<PlayerNetworkHealth>() != null) 
+                if (hit.collider.GetComponent<PlayerNetworkHealth>() != null)
+                {
                     Debug.Log("Hit Player !!" + hit.collider);
+                    hit.collider.GetComponent<PlayerNetworkHealth>().TakeDamage(damage);
+                }
+
                 // {
                 //     hit.collider.GetComponent<Damageable>().TakeDamage(damage, hit.point, hit.normal);
                 // }
@@ -47,28 +55,6 @@ public class Weapon : MonoBehaviour
             StartCoroutine(Reload());
         }
     }
-
-    // public IEnumerator RapidFire()
-    // {
-    //     if (CanShoot())
-    //     {
-    //         Shoot();
-    //         if (rapidFire)
-    //         {
-    //             while (CanShoot())
-    //             {
-    //                 yield return rapidFireWait;
-    //                 Shoot();
-    //             }
-    //             StartCoroutine(Reload());
-    //         }
-    //     }
-    //     else
-    //     {
-    //         StartCoroutine(Reload());
-    //     }
-    //
-    // }
 
     IEnumerator Reload()
     {
@@ -82,6 +68,7 @@ public class Weapon : MonoBehaviour
             print("Reloading...");
             yield return reloadWait;
             currentAmmo = maxAmmo;
+            EventManager.Instance.Raise(new PlayerMagChangedEvent() { eMag = currentAmmo });
             print("Finished reloading");
             canReload = true;
         }

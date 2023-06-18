@@ -2769,7 +2769,7 @@ MonoBehaviour:
   _fallTimeout: 0.15
   _grounded: 1
   _groundedOffset: -0.14
-  _groundedRadius: 0.25
+  _groundedRadius: 0.2
   _groundLayers:
     serializedVersion: 2
     m_Bits: 65
