@@ -10,35 +10,45 @@ namespace InputSystem
 		public Vector2 look;
 		public bool jump;
 		public bool sprint;
+		public bool shoot;
+		public bool reload;
 
 		public void OnMove(InputValue value)
 		{
-			if (GameManager.Instance.IsPlaying) MoveInput(value.Get<Vector2>());
-			else MoveInput(new Vector2(0,0));
+			MoveInput(value.Get<Vector2>());
 		}
 		public void MoveInput(Vector2 newMoveDirection) { move = newMoveDirection; }
 
 		public void OnLook(InputValue value)
 		{
-			if (GameManager.Instance.IsPlaying) LookInput(value.Get<Vector2>());
-			else LookInput(new Vector2(0,0));
+			LookInput(value.Get<Vector2>());
 		}
 		public void LookInput(Vector2 newLookDirection) { look = newLookDirection; }
 
 		public void OnJump(InputValue value)
 		{
-			if (GameManager.Instance.IsPlaying) JumpInput(value.isPressed); 
-			else JumpInput(false);
+			JumpInput(value.isPressed); 
 		}
 		public void JumpInput(bool newJumpState) { jump = newJumpState; }
 
 		public void OnSprint(InputValue value)
 		{
-			if (GameManager.Instance.IsPlaying) SprintInput(value.isPressed);
-			else SprintInput(false);
+			SprintInput(value.isPressed);
 		}
 		public void SprintInput(bool newSprintState) { sprint = newSprintState; }
 
+		public void OnShoot(InputValue value)
+		{
+			ShootInput(value.isPressed);
+		}
+		public void ShootInput(bool newShootState) { shoot = newShootState; }
+		
+		public void OnReload(InputValue value)
+		{
+			ReloadInput(value.isPressed);
+		}
+		public void ReloadInput(bool newReloadState) { reload = newReloadState; }
+		
 		private void OnApplicationFocus(bool hasFocus)
 		{
 			if (hasFocus && GameManager.Instance.IsPlaying)

@@ -1,10 +1,8 @@
 ﻿using Cinemachine;
 using InputSystem;
-using SDD.Events;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Serialization;
 
 namespace Player
 {
@@ -58,12 +56,6 @@ namespace Player
         [Tooltip("The follow target set in the Cinemachine Virtual Camera that the camera will follow")]
         [SerializeField]
         private CinemachineVirtualCamera _cinemachineVirtualCamera;
-        [Tooltip("Sensitivity when looking around.")] 
-        [SerializeField]
-        private Vector2 _sensitivity = new Vector2(1.0f, 1.0f);
-        [Tooltip("The speed at which the look rotation is interpolated.")] 
-        [SerializeField]
-        private float _interpolationSpeed = 25.0f;
         [Tooltip("How far in degrees can you move the camera up")] 
         [SerializeField]
         private Vector2 _yClamp = new Vector2(-60, 60);
@@ -139,15 +131,18 @@ namespace Player
         private void Update()
         {
             if (!IsOwner) return; //If this is not the owner, skip Update()
-            JumpAndGravity();
-            GroundedCheck();
-            Move();
+            if (GameManager.Instance.IsPlaying)
+            {
+                JumpAndGravity();
+                GroundedCheck();
+                Move();
+            }
         }
 
         private void LateUpdate()
         {
             if (!IsOwner) return; //If this is not the owner, skip LateUpdate()
-            CameraRotation();
+            if (GameManager.Instance.IsPlaying) CameraRotation();
         }
 
         private void GroundedCheck()
@@ -163,20 +158,6 @@ namespace Player
         {
             if (_input.look.sqrMagnitude >= 0.01f) // if there is an input
             {
-                // Vector2 frameInput = _input.look * _sensitivity;
-                // Quaternion rotationYaw = Quaternion.Euler(0.0f, frameInput.x, 0.0f);
-                // Quaternion rotationPitch = Quaternion.Euler(-frameInput.y, 0.0f, 0.0f);
-                //
-                // rotationCamera *= rotationPitch;
-                // rotationCamera = Clamp(rotationCamera);
-                // rotationCharacter *= rotationYaw;
-                //
-                // Quaternion localRotation = transform.localRotation;
-                //
-                // localRotation = Quaternion.Slerp(localRotation, rotationCamera, Time.deltaTime * _interpolationSpeed);
-                // transform.rotation = Quaternion.Slerp(transform.rotation, rotationCharacter, Time.deltaTime * _interpolationSpeed);
-                // _cinemachineCameraTarget.transform.localRotation = Clamp(localRotation);
-
                 _cinemachineTargetPitch += _input.look.y * _rotationSpeed;
                 _rotationVelocity = _input.look.x * _rotationSpeed;
                 
