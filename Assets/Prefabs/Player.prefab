@@ -2596,10 +2596,9 @@ MonoBehaviour:
     m_Bits: 65
   _cinemachineCameraTarget: {fileID: 7750452134757781949}
   _cinemachineVirtualCamera: {fileID: 2958135986397643317}
-  _sensitivity: {x: 1, y: 1}
-  _interpolationSpeed: 25
   _yClamp: {x: -60, y: 60}
   CharacterRig: {fileID: 99822429643701034}
+  _weapon: {fileID: 7290355630613832173}
 --- !u!114 &3744710490433315903
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2616,6 +2615,8 @@ MonoBehaviour:
   look: {x: 0, y: 0}
   jump: 0
   sprint: 0
+  shoot: 0
+  reload: 0
 --- !u!114 &3744710490433315896
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2906,6 +2907,16 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 99822429643269834}
     m_Modifications:
+    - target: {fileID: -4660282107627496210, guid: bae0f6dd681338e4084aca123f9368d0,
+        type: 3}
+      propertyPath: rapidFire
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -4660282107627496210, guid: bae0f6dd681338e4084aca123f9368d0,
+        type: 3}
+      propertyPath: reloadTime
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 1724089017831678586, guid: bae0f6dd681338e4084aca123f9368d0,
         type: 3}
       propertyPath: m_RootOrder
@@ -2974,3 +2985,15 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 6521161462591831299}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &7290355630613832173 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: -4660282107627496210, guid: bae0f6dd681338e4084aca123f9368d0,
+    type: 3}
+  m_PrefabInstance: {fileID: 6521161462591831299}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 84ac7678a15140e4cbe1b7977c208171, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

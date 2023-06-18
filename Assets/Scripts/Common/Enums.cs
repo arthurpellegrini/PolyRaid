@@ -15,14 +15,6 @@ public enum MapState
     Clement = 3
 }
 
-public enum Weapon
-{
-    M4 = 0,
-    M19 = 1,
-    MP5 = 2,
-    FR_F2 = 3
-}
-
 public enum PlayerState
 {
     Iddle,

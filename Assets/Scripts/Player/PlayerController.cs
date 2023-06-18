@@ -1,5 +1,6 @@
 ﻿using Cinemachine;
 using InputSystem;
+using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -87,6 +88,9 @@ namespace Player
         private PlayerInputController _input;
         private GameObject _mainCamera;
 
+        [SerializeField] private Weapon _weapon;
+        private Coroutine fireCoroutine;
+
         public override void OnNetworkSpawn()
         {
             //If this is not the owner, turn of player inputs
@@ -136,6 +140,11 @@ namespace Player
                 JumpAndGravity();
                 GroundedCheck();
                 Move();
+                if (_input.shoot)
+                {
+                    StartFiring();
+                    _input.shoot = false;
+                }
             }
         }
 
@@ -285,23 +294,18 @@ namespace Player
                 new Vector3(transform.position.x, transform.position.y - _groundedOffset, transform.position.z),
                 _groundedRadius);
         }
-        
-        // private Quaternion Clamp(Quaternion rotation)
-        // {
-        //     rotation.x /= rotation.w;
-        //     rotation.y /= rotation.w;
-        //     rotation.z /= rotation.w;
-        //     rotation.w = 1.0f;
-        //
-        //     //Pitch.
-        //     float pitch = 2.0f * Mathf.Rad2Deg * Mathf.Atan(rotation.x);
-        //
-        //     //Clamp.
-        //     pitch = Mathf.Clamp(pitch, yClamp.x, yClamp.y);
-        //     rotation.x = Mathf.Tan(0.5f * Mathf.Deg2Rad * pitch);
-        //
-        //     //Return.
-        //     return rotation;
-        // }
+
+        private void StartFiring()
+        {
+            fireCoroutine = StartCoroutine(_weapon.RapidFire());
+        }
+
+        private void StopFiring()
+        {
+            if (fireCoroutine != null)
+            {
+                StopCoroutine(fireCoroutine);
+            }
+        }
     }
 }

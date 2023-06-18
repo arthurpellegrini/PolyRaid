@@ -70,10 +70,10 @@ public class HudManager : Manager<HudManager>
 		_fps.text = "FPS:" + fps.ToString();
 	}
 
-	void RefreshPlayerUI(bool isCrouched, Weapon weaponID, int mag, int munition, int grenade)
+	void RefreshPlayerUI(bool isCrouched, int weaponID, int mag, int munition, int grenade)
 	{
 		_crouching.SetActive(isCrouched);
-		_weapon.sprite = _weaponSpriteList[(int) weaponID];
+		// _weapon.sprite = _weaponSpriteList[(int) weaponID];
 		_mag.text = mag.ToString();
 		_munition.text = munition.ToString();
 		_grenade.text = grenade.ToString();

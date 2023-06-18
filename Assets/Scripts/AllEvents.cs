@@ -32,7 +32,7 @@ public class SessionStatisticsChangedEvent : SDD.Events.Event
 public class PlayerStatisticsChangedEvent : SDD.Events.Event
 {
 	public bool eIsCrouching { get; set; }
-	public Weapon eWeaponID { get; set; }
+	public int eWeaponID { get; set; }
 	public int eMag { get; set; }
 	public int eMunition { get; set; }
 	public int eGrenade { get; set; }
