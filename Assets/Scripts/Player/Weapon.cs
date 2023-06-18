@@ -6,27 +6,24 @@ using Event = SDD.Events.Event;
 public class Weapon : MonoBehaviour
 {
     private Transform cam;
-
-    [SerializeField] private bool rapidFire = false;
+    
     private bool canReload = true;
     [SerializeField] private float range = 50f;
     [SerializeField] private int damage = 10;
-    [SerializeField] private float fireRate = 5f;
-    private WaitForSeconds rapidFireWait;
-
     [SerializeField] private int maxAmmo = 30;
     private int currentAmmo; // TODO: SETTER CURRENT AMMO -> AVEC LEVEE EVENEMENT EN +
-    
     [SerializeField] private float reloadTime;
     private WaitForSeconds reloadWait;
+    private int score = 0;
+    
     
     private void Awake()
     {
         cam = Camera.main.transform;
-        rapidFireWait = new WaitForSeconds(1 / fireRate);
         reloadWait = new WaitForSeconds(reloadTime);
         currentAmmo = maxAmmo;
         EventManager.Instance.Raise(new PlayerMagChangedEvent() { eMag = currentAmmo });
+        EventManager.Instance.Raise(new PlayerScoreChangedEvent() { eScore = score });
     }
 
     public void Shoot()
@@ -42,6 +39,8 @@ public class Weapon : MonoBehaviour
                 if (hit.collider.GetComponent<PlayerNetworkHealth>() != null)
                 {
                     Debug.Log("Hit Player !!" + hit.collider);
+                    score += 100;
+                    EventManager.Instance.Raise(new PlayerScoreChangedEvent() { eScore = score });
                     hit.collider.GetComponent<PlayerNetworkHealth>().TakeDamage(damage);
                 }
 
