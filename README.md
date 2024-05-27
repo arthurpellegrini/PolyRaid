@@ -2,9 +2,9 @@
 [![Version C#][csharp]](https://docs.microsoft.com/en-us/dotnet/csharp/whats-new/csharp-version-history)
 
 
-# [Codename Nemesis]
+# PolyRa!d [Codename Nemesis]
 
-[Codename Nemesis] is a first-person shooter (FPS) game with a LowPoly aesthetic, inspired by games like CS:GO. Immerse yourself in the frantic and strategic action of this competitive multiplayer game where you battle against other players in diverse environments. Get ready to test your skills and climb to the top of the leaderboard!
+PolyRa!d is a first-person shooter (FPS) game with a LowPoly aesthetic. Immerse yourself in the frantic and strategic action of this competitive multiplayer game where you battle against other players in diverse environments. Get ready to test your skills and climb to the top of the leaderboard!
 
 ## Features
 
